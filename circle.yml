@@ -1,6 +1,6 @@
 dependencies:
   pre:
-    - curl -L "https://cli.run.pivotal.io/stable?release=macosx64-binary&source=github" > /tmp/cf-cli.tgz && cd /tmp && tar zxf cf-cli.tgz
+    - curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" > /tmp/cf-cli.tgz && cd /tmp && tar zxf cf-cli.tgz
 deployment:
   review:
     branch: master
