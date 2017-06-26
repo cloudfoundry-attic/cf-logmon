@@ -1,5 +1,6 @@
 package org.cloudfoundry.rivendell
 
+import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -17,9 +18,11 @@ open class RivendellApplication {
 
     @Component
     open class Printer {
+        private val log = LoggerFactory.getLogger(Printer::class.java)
+
         @Scheduled(fixedRate = 1000)
         fun print() {
-            println("They are taking the Hobbits to Eisengard!")
+            log.info("They are taking the Hobbits to Eisengard!")
         }
     }
 }
