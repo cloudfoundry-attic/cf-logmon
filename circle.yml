@@ -5,5 +5,6 @@ deployment:
   review:
     branch: master
     commands:
+      - ./gradlew build -Dorg.gradle.project.version=1.0.$CIRCLE_BUILD_NUM
       - /tmp/cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -s "$CF_SPACE"
-      - /tmp/cf push "$CF_APPNAME"
+      - /tmp/cf push "$CF_APPNAME" -p build/libs/rivendell-1.0.$CIRCLE_BUILD_NUM.jar
