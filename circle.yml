@@ -1,0 +1,9 @@
+dependencies:
+  pre:
+    - curl -L "https://cli.run.pivotal.io/stable?release=macosx64-binary&source=github" > /tmp/cf-cli.tgz && cd /tmp && tar zxf cf-cli.tgz
+deployment:
+  review:
+    branch: master
+    commands:
+      - /tmp/cf login -a "$CF_API" -u "$CF_USER" -p "$CF_PASSWORD" -s "$CF_SPACE"
+      - /tmp/cf push "$CF_APPNAME"
