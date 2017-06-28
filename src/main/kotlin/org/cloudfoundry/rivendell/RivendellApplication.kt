@@ -1,14 +1,17 @@
 package org.cloudfoundry.rivendell
 
-import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
+import org.springframework.boot.actuate.metrics.CounterService
+import org.springframework.boot.actuate.metrics.repository.InMemoryMetricRepository
+import org.springframework.boot.actuate.metrics.repository.MetricRepository
+import org.springframework.boot.actuate.metrics.writer.DefaultCounterService
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
 
 @SpringBootApplication
-@EnableScheduling
 open class RivendellApplication {
     companion object {
         @JvmStatic fun main(args: Array<String>) {
@@ -16,13 +19,18 @@ open class RivendellApplication {
         }
     }
 
-    @Component
-    open class Printer {
-        private val log = LoggerFactory.getLogger(Printer::class.java)
+    @Configuration
+    @EnableScheduling
+    @Profile("!test")
+    open class SchedulingConfiguration
 
-        @Scheduled(fixedRate = 1000)
-        fun print() {
-            log.info("They are taking the Hobbits to Eisengard!")
-        }
-    }
+    @Configuration
+    @Profile("test")
+    open class TestConfiguration
+
+    @Bean
+    open fun counterService(metricRepository: MetricRepository): CounterService = DefaultCounterService(metricRepository)
+
+    @Bean
+    open fun metricRepository(): MetricRepository = InMemoryMetricRepository()
 }

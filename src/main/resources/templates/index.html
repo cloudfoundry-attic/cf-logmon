@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Rivendell</title>
+    <style>
+        img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Rivendell</h1>
+    <p>Run `cf logs rivendell` to view logs.</p>
+    <img src="http://www.prometej.ba/uploads/clanak/2476/790x450gospodar-prstenova.jpg" alt="Rivendell"/>
+    <div class="metric metric-total-writes" th:text="${writeCount}">0</div>
+</body>
+</html>

@@ -1,15 +1,15 @@
 buildscript {
-	ext {
-		springBootVersion = '1.5.4.RELEASE'
-		kotlinVersion = '1.1.3'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-	}
+    ext {
+        springBootVersion = '1.5.4.RELEASE'
+        kotlinVersion = '1.1.3'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    }
 }
 
 apply plugin: 'java'
@@ -21,13 +21,16 @@ version = "${version}"
 sourceCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 
 dependencies {
-	compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-actuator')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+defaultTasks 'clean', 'test'
