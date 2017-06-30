@@ -2,6 +2,9 @@ buildscript {
     ext {
         springBootVersion = '1.5.4.RELEASE'
         kotlinVersion = '1.1.3'
+        cfClientVersion = '2.13.0.RELEASE'
+        reactorVersion = '3.0.7.RELEASE'
+        reactorNettyVersion = '0.6.3.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -30,6 +33,12 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-actuator')
+
+    compile("org.cloudfoundry:cloudfoundry-client-reactor:$cfClientVersion")
+    compile('org.cloudfoundry:cloudfoundry-operations:2.13.0.RELEASE')
+    compile("io.projectreactor:reactor-core:$reactorVersion")
+    compile("io.projectreactor.ipc:reactor-netty:$reactorNettyVersion")
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

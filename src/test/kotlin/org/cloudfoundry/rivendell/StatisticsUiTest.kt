@@ -1,6 +1,7 @@
 package org.cloudfoundry.rivendell
 
 import org.assertj.core.api.Assertions.assertThat
+import org.cloudfoundry.rivendell.cf.ApplicationFinder
 import org.cloudfoundry.rivendell.support.getHtml
 import org.cloudfoundry.rivendell.support.xpath
 import org.junit.Test
@@ -11,6 +12,7 @@ import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,6 +25,9 @@ import org.springframework.test.context.junit4.SpringRunner
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class StatisticsUiTest {
+    @MockBean
+    private lateinit var applicationFinder: ApplicationFinder
+
     @LocalServerPort
     private var port: Int = -1
 
