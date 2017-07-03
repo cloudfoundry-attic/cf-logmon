@@ -5,7 +5,10 @@ import org.cloudfoundry.doppler.LogMessage
 import org.cloudfoundry.doppler.MessageType
 import org.cloudfoundry.rivendell.cf.CfApplicationEnv
 import org.cloudfoundry.rivendell.cf.LogStreamer
+import org.cloudfoundry.rivendell.cf.LogStreamer.Application
 import org.cloudfoundry.rivendell.statistics.LOGS_CONSUMED
+import org.cloudfoundry.rivendell.support.any
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -13,7 +16,6 @@ import org.mockito.Mockito.*
 import org.mockito.runners.MockitoJUnitRunner
 import org.springframework.boot.actuate.metrics.CounterService
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Hooks
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
@@ -36,9 +38,14 @@ class LogSinkTest {
         it.cfApi = URI("https://example.com")
     }
 
+    @Before
+    fun setUp() {
+        `when`(logStreamer.fetchApplicationByName(any())).thenReturn(Application("foo", "bar", "baz"))
+    }
+
     @Test
     fun consume_incrementsCounterOncePerMessage() {
-        `when`(logStreamer.logStreamForApplication(anyString())).thenReturn(Flux.just(
+        `when`(logStreamer.logStreamForApplication(any())).thenReturn(Flux.just(
             message("$VALID_MESSAGE_PATTERN 1"),
             message("$VALID_MESSAGE_PATTERN 2"),
             message("$VALID_MESSAGE_PATTERN 3"),
@@ -53,7 +60,7 @@ class LogSinkTest {
 
     @Test
     fun consume_returnsNumberOfValidLogsConsumed() {
-        `when`(logStreamer.logStreamForApplication(anyString())).thenReturn(Flux.just(
+        `when`(logStreamer.logStreamForApplication(any())).thenReturn(Flux.just(
             message("$VALID_MESSAGE_PATTERN 1"),
             message("$VALID_MESSAGE_PATTERN 2"),
             message("NOT VALID"),
@@ -66,12 +73,10 @@ class LogSinkTest {
 
     @Test
     fun consume_runsForTenSecondsAfterTheProductionCompletes() {
-        Hooks.onOperator<Any> { providedHook -> providedHook.operatorStacktrace() }
-
         val productionCompletePublisher = TestPublisher.create<Unit>()
         val logGenerator = TestPublisher.create<LogMessage>()
         StepVerifier.withVirtualTime {
-            `when`(logStreamer.logStreamForApplication(anyString())).thenReturn(logGenerator.flux())
+            `when`(logStreamer.logStreamForApplication(any())).thenReturn(logGenerator.flux())
             LogSink(appEnv, logStreamer, counterService).consume(productionCompletePublisher.mono())
         }
             .thenAwait(Duration.ofMillis(10_000))

@@ -10,6 +10,7 @@ import org.springframework.boot.actuate.metrics.CounterService
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Duration
+import java.time.Instant
 
 const val VALID_MESSAGE_PATTERN = "Printer"
 
@@ -23,12 +24,13 @@ open class LogSink @Autowired constructor(
     private var postProductionWaitTime: Long = 10_000L
 
     override fun consume(productionCompleteNotifier: Mono<Unit>): Mono<Long> {
-        return logStreamer.logStreamForApplication(cfApplicationEnv.name)
+        val application = logStreamer.fetchApplicationByName(cfApplicationEnv.name)!!
+        return logStreamer.logStreamForApplication(application)
+            .doOnNext { println("${Instant.now()}: Message received") }
             .filter { it.message.contains(VALID_MESSAGE_PATTERN) }
             .doOnNext { counterService.increment(LOGS_CONSUMED) }
             .takeUntilOther(
-                Mono
-                    .delay(Duration.ofMillis(postProductionWaitTime))
+                Mono.delay(Duration.ofMillis(postProductionWaitTime))
                     .delaySubscription(productionCompleteNotifier)
             )
             .count()

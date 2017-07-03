@@ -8,7 +8,6 @@ import org.cloudfoundry.client.v2.spaces.GetSpaceResponse
 import org.cloudfoundry.doppler.DopplerClient
 import org.cloudfoundry.doppler.LogMessage
 import org.cloudfoundry.operations.DefaultCloudFoundryOperations
-import org.cloudfoundry.operations.applications.ApplicationDetail
 import org.cloudfoundry.operations.applications.GetApplicationRequest
 import org.cloudfoundry.operations.applications.LogsRequest
 import org.cloudfoundry.uaa.UaaClient
@@ -18,50 +17,50 @@ import reactor.core.publisher.Flux
 
 @Component
 open class LogStreamer @Autowired constructor(
-        val cloudFoundryClient: CloudFoundryClient,
-        val dopplerClient: DopplerClient,
-        val uaaClient: UaaClient,
-        val cfApplicationEnv: CfApplicationEnv
+    val cloudFoundryClient: CloudFoundryClient,
+    val dopplerClient: DopplerClient,
+    val uaaClient: UaaClient,
+    val cfApplicationEnv: CfApplicationEnv
 ) {
-    open fun logStreamForApplication(appName: String): Flux<LogMessage> {
-        val space = fetchSpaceById(cfApplicationEnv.spaceId)
-        val organization = fetchOrganizationById(space.entity.organizationId)
-        val application = fetchApplicationByName(appName)!!
-        val logsReq = LogsRequest.builder().name(application.name).build()
+    data class Application(val orgName: String, val spaceName: String, val appName: String)
 
-        return client(organization.entity.name, space.entity.name).applications().logs(logsReq)
+    open fun logStreamForApplication(application: Application): Flux<LogMessage> {
+        val logsReq = LogsRequest.builder().name(application.appName).build()
+
+        return client(application.orgName, application.spaceName).applications().logs(logsReq)
     }
 
-    fun fetchApplicationByName(name: String): ApplicationDetail? {
+    open fun fetchApplicationByName(name: String): Application? {
         val space = fetchSpaceById(cfApplicationEnv.spaceId)
         val organization = fetchOrganizationById(space.entity.organizationId)
 
         return client(organization.entity.name, space.entity.name).applications()
-                .get(GetApplicationRequest.builder().name(name).build())
-                .block()
+            .get(GetApplicationRequest.builder().name(name).build())
+            .map { Application(organization.entity.name, space.entity.name, it.name) }
+            .block()
     }
 
     fun fetchSpaceById(spaceId: String): GetSpaceResponse =
-            cloudFoundryClient.spaces()
-                    .get(GetSpaceRequest.builder().spaceId(spaceId).build())
-                    .block()
+        cloudFoundryClient.spaces()
+            .get(GetSpaceRequest.builder().spaceId(spaceId).build())
+            .block()
 
     private fun fetchOrganizationById(orgId: String): GetOrganizationResponse =
-            cloudFoundryClient.organizations()
-                    .get(GetOrganizationRequest.builder().organizationId(orgId).build())
-                    .block()
+        cloudFoundryClient.organizations()
+            .get(GetOrganizationRequest.builder().organizationId(orgId).build())
+            .block()
 
     private var _client: DefaultCloudFoundryOperations? = null
 
     private fun client(orgId: String, spaceId: String): DefaultCloudFoundryOperations {
         if (_client == null) {
             _client = DefaultCloudFoundryOperations.builder()
-                    .cloudFoundryClient(cloudFoundryClient)
-                    .dopplerClient(dopplerClient)
-                    .uaaClient(uaaClient)
-                    .organization(orgId)
-                    .space(spaceId)
-                    .build()
+                .cloudFoundryClient(cloudFoundryClient)
+                .dopplerClient(dopplerClient)
+                .uaaClient(uaaClient)
+                .organization(orgId)
+                .space(spaceId)
+                .build()
         }
         return _client!!
     }

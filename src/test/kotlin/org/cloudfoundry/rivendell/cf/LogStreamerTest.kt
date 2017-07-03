@@ -120,7 +120,9 @@ class LogStreamerTest {
     fun fetchApplicationByName_canGetAnApplicationInASpaceByName() {
         val application = subject.fetchApplicationByName("some name")!!
 
-        assertThat(application.id).isEqualTo("some app guid")
+        assertThat(application.appName).isEqualTo("some app name")
+        assertThat(application.spaceName).isEqualTo("some space id")
+        assertThat(application.orgName).isEqualTo("org name")
     }
 
     @Test
@@ -137,7 +139,7 @@ class LogStreamerTest {
                                     .build())
                             .build()
                 })
-        val stream = subject.logStreamForApplication("app")
+        val stream = subject.logStreamForApplication(LogStreamer.Application("org", "space", "app"))
 
         val messages = stream.collectList().block()
         assertThat(messages).hasSize(100)

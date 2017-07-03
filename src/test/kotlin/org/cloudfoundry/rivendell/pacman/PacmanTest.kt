@@ -12,8 +12,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.runners.MockitoJUnitRunner
 import reactor.core.publisher.Mono
-import java.util.concurrent.Executors
-
 
 @RunWith(MockitoJUnitRunner::class)
 class PacmanTest {
@@ -23,7 +21,7 @@ class PacmanTest {
     @Mock
     private lateinit var logProducer: LogProducer
 
-    private val pacman: Pacman by lazy { Pacman(logProducer, logConsumer, 20, Executors.newSingleThreadExecutor()) }
+    private val pacman: Pacman by lazy { Pacman(logProducer, logConsumer, 20) }
 
     @Before
     fun setUp() {
