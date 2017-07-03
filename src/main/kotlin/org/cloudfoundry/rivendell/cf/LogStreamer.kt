@@ -15,24 +15,15 @@ import org.cloudfoundry.uaa.UaaClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
-import javax.annotation.PostConstruct
 
 @Component
-open class ApplicationFinder @Autowired constructor(
+open class LogStreamer @Autowired constructor(
         val cloudFoundryClient: CloudFoundryClient,
         val dopplerClient: DopplerClient,
         val uaaClient: UaaClient,
         val cfApplicationEnv: CfApplicationEnv
 ) {
-
-    @PostConstruct
-    open fun onInit() {
-        logStreamForApplication(cfApplicationEnv.name).subscribe {
-            println("You've got mail: $it")
-        }
-    }
-
-    fun logStreamForApplication(appName: String): Flux<LogMessage> {
+    open fun logStreamForApplication(appName: String): Flux<LogMessage> {
         val space = fetchSpaceById(cfApplicationEnv.spaceId)
         val organization = fetchOrganizationById(space.entity.organizationId)
         val application = fetchApplicationByName(appName)!!

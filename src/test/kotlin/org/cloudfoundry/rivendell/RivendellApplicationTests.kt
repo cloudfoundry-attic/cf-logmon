@@ -1,7 +1,8 @@
 package org.cloudfoundry.rivendell
 
 import org.assertj.core.api.Assertions.assertThat
-import org.cloudfoundry.rivendell.cf.ApplicationFinder
+import org.cloudfoundry.rivendell.pacman.LogTestExecution
+import org.cloudfoundry.rivendell.pacman.Printer
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
@@ -10,7 +11,6 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -20,7 +20,7 @@ import java.io.PrintStream
 class RivendellApplicationTests {
 
     @MockBean
-    private lateinit var applicationFinder: ApplicationFinder
+    private lateinit var logTestExecution: LogTestExecution
 
     private val outContent = ByteArrayOutputStream()
     private var oldStdout: PrintStream? = null
@@ -46,9 +46,9 @@ class RivendellApplicationTests {
     @Test
     fun theApp_shouldPrintToStandardOutAllTheTimes() {
         try {
-            printer.print()
-            printer.print()
-            printer.print()
+            printer.produce()
+            printer.produce()
+            printer.produce()
             val lines = outContent.toString().trim().split("\n")
 
             assertThat(lines.size).isEqualTo(3)

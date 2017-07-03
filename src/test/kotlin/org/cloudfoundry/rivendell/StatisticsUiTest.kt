@@ -1,7 +1,9 @@
 package org.cloudfoundry.rivendell
 
 import org.assertj.core.api.Assertions.assertThat
-import org.cloudfoundry.rivendell.cf.ApplicationFinder
+import org.cloudfoundry.rivendell.pacman.LogTestExecution
+import org.cloudfoundry.rivendell.statistics.LOGS_CONSUMED
+import org.cloudfoundry.rivendell.statistics.LOGS_PRODUCED
 import org.cloudfoundry.rivendell.support.getHtml
 import org.cloudfoundry.rivendell.support.xpath
 import org.junit.Test
@@ -14,8 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 
@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner
 @ActiveProfiles("test")
 class StatisticsUiTest {
     @MockBean
-    private lateinit var applicationFinder: ApplicationFinder
+    private lateinit var logTestExecution: LogTestExecution
 
     @LocalServerPort
     private var port: Int = -1
@@ -47,11 +47,11 @@ class StatisticsUiTest {
         assertThat(titleNodes.length).isEqualTo(1)
         assertThat(titleNodes.item(0).textContent).isEqualToIgnoringCase("0")
 
-        counterService.increment("rivendell.logs.written")
-        counterService.increment("rivendell.logs.written")
-        counterService.increment("rivendell.logs.written")
-        counterService.increment("rivendell.logs.written")
-        counterService.increment("rivendell.logs.written")
+        counterService.increment(LOGS_PRODUCED)
+        counterService.increment(LOGS_PRODUCED)
+        counterService.increment(LOGS_PRODUCED)
+        counterService.increment(LOGS_PRODUCED)
+        counterService.increment(LOGS_PRODUCED)
 
         body = http.getForObject(baseUrl, String::class.java).getHtml()
         titleNodes = body.xpath("//div[@class='metric metric-total-writes']")
@@ -65,9 +65,9 @@ class StatisticsUiTest {
         assertThat(titleNodes.length).isEqualTo(1)
         assertThat(titleNodes.item(0).textContent).isEqualToIgnoringCase("0")
 
-        counterService.increment("rivendell.logs.read")
-        counterService.increment("rivendell.logs.read")
-        counterService.increment("rivendell.logs.read")
+        counterService.increment(LOGS_CONSUMED)
+        counterService.increment(LOGS_CONSUMED)
+        counterService.increment(LOGS_CONSUMED)
 
         body = http.getForObject(baseUrl, String::class.java).getHtml()
         titleNodes = body.xpath("//div[@class='metric metric-total-reads']")

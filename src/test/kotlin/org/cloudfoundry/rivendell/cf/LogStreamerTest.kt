@@ -29,7 +29,7 @@ import java.time.Instant
 
 @SpringBootTest
 @RunWith(MockitoJUnitRunner::class)
-class ApplicationFinderTest {
+class LogStreamerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS, name = "Cloud Foundry Client")
     private lateinit var cloudFoundryClient: CloudFoundryClient
 
@@ -45,7 +45,8 @@ class ApplicationFinderTest {
         it.spaceId = "some space id"
     }
 
-    val subject by lazy { ApplicationFinder(cloudFoundryClient, dopplerClient, uaaClient, cfApplicationEnv) }
+    val subject by lazy { LogStreamer(cloudFoundryClient, dopplerClient, uaaClient, cfApplicationEnv) }
+
     @Before
     fun setUp() {
         `when`(cloudFoundryClient.organizations().list(any()))
