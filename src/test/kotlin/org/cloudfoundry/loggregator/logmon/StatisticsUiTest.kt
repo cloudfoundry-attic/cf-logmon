@@ -1,6 +1,5 @@
 package org.cloudfoundry.loggregator.logmon
 
-import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.cloudfoundry.loggregator.logmon.pacman.LogTestExecution
 import org.cloudfoundry.loggregator.logmon.statistics.LOGS_CONSUMED

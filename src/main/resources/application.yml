@@ -5,13 +5,13 @@ endpoints:
 
 vcap:
   application:
-    name: NOPE
-    cf_api: NOPE
-    space_id: NOPE
+    name: unknown
+    cf-api: http://example.com
+    space-id: unknown
 
 cf:
   username: nope@nope.com
-  password: NOPE
+  password: unknown
 
 logmon:
   consumption:
@@ -29,10 +29,9 @@ spring:
 vcap:
   application:
     name: cf-logmon
-    cf_api: https://api.run.pez.pivotal.io
-    space_id: 92340jkjd09j293ej
+    cf-api: https://api.run.pez.pivotal.io
+    space-id: 92340jkjd09j293ej
 
 cf:
   username: ttaylor+cf-logmon@pivotal.io
   password: FAIL
-
