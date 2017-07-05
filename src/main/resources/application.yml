@@ -1,0 +1,38 @@
+endpoints:
+  metrics:
+    enabled: true
+    sensitive: false
+
+vcap:
+  application:
+    name: NOPE
+    cf_api: NOPE
+    space_id: NOPE
+
+cf:
+  username: nope@nope.com
+  password: NOPE
+
+logmon:
+  consumption:
+    post-production-wait-time-millis: 10000
+  production:
+    logs-per-test: 10000
+
+---
+
+spring:
+  profiles: dev
+  thymeleaf:
+    cache: false
+
+vcap:
+  application:
+    name: cf-logmon
+    cf_api: https://api.run.pez.pivotal.io
+    space_id: 92340jkjd09j293ej
+
+cf:
+  username: ttaylor+cf-logmon@pivotal.io
+  password: FAIL
+

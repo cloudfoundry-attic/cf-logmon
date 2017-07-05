@@ -1,5 +1,6 @@
 package org.cloudfoundry.loggregator.logmon
 
+import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.cloudfoundry.loggregator.logmon.pacman.LogTestExecution
 import org.cloudfoundry.loggregator.logmon.statistics.LOGS_CONSUMED
@@ -18,6 +19,8 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
+import org.w3c.dom.Document
+import org.w3c.dom.NodeList
 
 
 @RunWith(SpringRunner::class)
@@ -42,10 +45,9 @@ class StatisticsUiTest {
 
     @Test
     fun theApp_shouldDisplayNumberOfWrites() {
-        var body = http.getForObject(baseUrl, String::class.java).getHtml()
-        var titleNodes = body.xpath("//div[@class='metric metric-total-writes']")
-        assertThat(titleNodes.length).isEqualTo(1)
-        assertThat(titleNodes.item(0).textContent).isEqualToIgnoringCase("0")
+        var writes = page.xpath("//section[@class='metric metric-total-writes']")
+        assertThat(writes.length).isEqualTo(1)
+        assertThat(writes.text).isEqualToIgnoringCase("Logs Written: 0")
 
         counterService.increment(LOGS_PRODUCED)
         counterService.increment(LOGS_PRODUCED)
@@ -53,24 +55,27 @@ class StatisticsUiTest {
         counterService.increment(LOGS_PRODUCED)
         counterService.increment(LOGS_PRODUCED)
 
-        body = http.getForObject(baseUrl, String::class.java).getHtml()
-        titleNodes = body.xpath("//div[@class='metric metric-total-writes']")
-        assertThat(titleNodes.item(0).textContent).isEqualToIgnoringCase("5")
+        writes = page.xpath("//section[@class='metric metric-total-writes']")
+        assertThat(writes.text).isEqualToIgnoringCase("Logs Written: 5")
     }
 
     @Test
     fun theApp_shouldDisplayNumberOfReads() {
-        var body = http.getForObject(baseUrl, String::class.java).getHtml()
-        var titleNodes = body.xpath("//div[@class='metric metric-total-reads']")
-        assertThat(titleNodes.length).isEqualTo(1)
-        assertThat(titleNodes.item(0).textContent).isEqualToIgnoringCase("0")
+        var reads = page.xpath("//section[@class='metric metric-total-reads']")
+        assertThat(reads.length).isEqualTo(1)
+        assertThat(reads.text).isEqualToIgnoringCase("Logs Read: 0")
 
         counterService.increment(LOGS_CONSUMED)
         counterService.increment(LOGS_CONSUMED)
         counterService.increment(LOGS_CONSUMED)
 
-        body = http.getForObject(baseUrl, String::class.java).getHtml()
-        titleNodes = body.xpath("//div[@class='metric metric-total-reads']")
-        assertThat(titleNodes.item(0).textContent).isEqualToIgnoringCase("3")
+        reads = page.xpath("//section[@class='metric metric-total-reads']")
+        assertThat(reads.text).isEqualToIgnoringCase("Logs Read: 3")
     }
+
+    private val page: Document
+        get() = http.getForObject(baseUrl, String::class.java).getHtml()
+
+    private val NodeList.text: String
+        get() = item(0).textContent.trim().replace(Regex("\\s+"), " ")
 }

@@ -7,13 +7,34 @@
         img {
             width: 100%;
         }
+
+        .metrics {
+            display: flex;
+            align-items: center;
+        }
+
+        .metric {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
     <h1>Welcome to Logmon</h1>
     <p>Run `cf logs cf-logmon` to view logs.</p>
     <img src="http://img07.deviantart.net/d5fd/i/2010/252/6/9/the_log_monster_by_crowsrock-d2ycjfc.jpg" alt="Log monster"/>
-    <div class="metric metric-total-writes" th:text="${writeCount}">0</div>
-    <div class="metric metric-total-reads" th:text="${readCount}">0</div>
+    <section class="metrics">
+        <section class="metric metric-total-writes">
+            <h2 class="metric-label">Logs Written:</h2>
+            <span class="metric-value" th:text="${writeCount}">0</span>
+        </section>
+        <section class="metric metric-total-reads">
+            <h2 class="metric-label">Logs Read:</h2>
+            <span class="metric-value" th:text="${readCount}">0</span>
+        </section>
+    </section>
 </body>
 </html>
