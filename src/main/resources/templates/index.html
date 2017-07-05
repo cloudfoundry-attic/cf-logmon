@@ -35,6 +35,10 @@
             <h2 class="metric-label">Logs Read:</h2>
             <span class="metric-value" th:text="${readCount}">0</span>
         </section>
+        <section class="metric metric-last-execution-time">
+            <h2 class="metric-label">Last Test Execution Started At:</h2>
+            <span class="metric-value" th:text="${lastExecutionTime}">0</span>
+        </section>
     </section>
 </body>
 </html>

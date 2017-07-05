@@ -1,19 +1,24 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
+import org.cloudfoundry.loggregator.logmon.statistics.LAST_EXECUTION_TIME
 import org.cloudfoundry.loggregator.logmon.statistics.LOGS_CONSUMED
 import org.cloudfoundry.loggregator.logmon.statistics.LOGS_PRODUCED
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.metrics.CounterService
+import org.springframework.boot.actuate.metrics.Metric
+import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 open class LogTestExecution @Autowired constructor(
     private val printer: Printer,
     private val logSink: LogSink,
-    internal val counterService: CounterService
+    private val counterService: CounterService,
+    private val metricRepository: MetricRepository
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
@@ -25,6 +30,7 @@ open class LogTestExecution @Autowired constructor(
     @Scheduled(fixedDelay = 20*1000, initialDelay = 1000)
     open fun runTest() {
         try {
+            metricRepository.set(Metric(LAST_EXECUTION_TIME, 0, Date()))
             counterService.reset(LOGS_PRODUCED)
             counterService.reset(LOGS_CONSUMED)
 
