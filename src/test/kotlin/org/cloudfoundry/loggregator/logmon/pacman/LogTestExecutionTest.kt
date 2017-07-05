@@ -36,12 +36,11 @@ class LogTestExecutionTest {
 
     @Before
     fun setUp() {
-        `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(5))
+        `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(10_000))
     }
 
     @Test
     fun runTest_shouldClearAllLogmonMetrics() {
-        `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(5))
         logTest.runTest()
         verify(counterService).reset(LOGS_PRODUCED)
         verify(counterService).reset(LOGS_CONSUMED)

@@ -2,35 +2,41 @@ package org.cloudfoundry.loggregator.logmon.pacman
 
 import org.cloudfoundry.loggregator.logmon.logs.LogConsumer
 import org.cloudfoundry.loggregator.logmon.logs.LogProducer
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.UnicastProcessor
 import java.time.Duration
+import java.util.function.Supplier
 
 open class Pacman(
     val logProducer: LogProducer,
     val logConsumer: LogConsumer,
     val numPellets: Int
 ) {
-    var pelletsConsumed = 0L
-
-    fun begin() {
+    fun begin(): Mono<Long> {
         val logProductionTask = LogProductionTask(logProducer, numPellets)
-        val processor = UnicastProcessor.create<Unit>()
-        val productionTask = processor.publish().autoConnect().next()
-            .delayElement(Duration.ofSeconds(2))
-            .doOnNext { println("Starting..."); logProductionTask.get() }
-            .ignoreElement()
+        val productionTask = queueUpTask(logProductionTask, delaySeconds = 2)
 
         val logConsumptionTask = LogConsumptionTask(logConsumer, productionTask)
-        val consumptionComplete = Mono.fromSupplier(logConsumptionTask)
+        val consumptionComplete = queueUpTask(logConsumptionTask, delaySeconds = 0)
 
-        processor.onNext({}.invoke())
-        consumptionComplete.subscribe {
-            productionTask.block()
-            pelletsConsumed = it
-        }
-        if (pelletsConsumed < numPellets) {
-            throw PacmanBedTimeException("Got less than the requisite number of pellets: $pelletsConsumed < $numPellets")
+        return consumptionComplete.and(productionTask).map { tuple ->
+            val pelletsConsumed = tuple.t1
+            if (pelletsConsumed < numPellets) {
+                throw notEnoughException(pelletsConsumed)
+            }
+            pelletsConsumed
         }
     }
+
+    private fun <T> queueUpTask(task: Supplier<T>, delaySeconds: Long): Mono<T> {
+        return Flux.fromIterable(listOf(task))
+            .delayElements(Duration.ofSeconds(delaySeconds))
+            .log()
+            .map { t -> t.get() }
+            .publish().autoConnect()
+            .next()
+    }
+
+    private fun notEnoughException(actual: Long) =
+        PacmanBedTimeException("Got less than the requisite number of pellets: $actual < $numPellets")
 }

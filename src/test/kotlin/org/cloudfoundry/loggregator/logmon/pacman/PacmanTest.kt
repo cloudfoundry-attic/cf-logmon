@@ -1,6 +1,5 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.cloudfoundry.loggregator.logmon.logs.LogConsumer
 import org.cloudfoundry.loggregator.logmon.logs.LogProducer
@@ -12,6 +11,8 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.runners.MockitoJUnitRunner
 import reactor.core.publisher.Mono
+import reactor.test.StepVerifier
+import java.time.Duration
 
 @RunWith(MockitoJUnitRunner::class)
 class PacmanTest {
@@ -29,32 +30,38 @@ class PacmanTest {
     }
 
     @Test
-    fun pacman_producesTheCorrectNumberOfPellets() {
-        pacman.begin()
-        verify(logProducer, times(20)).produce()
-    }
-
-    @Test
-    fun pacman_consumesTheCorrectNumberOfPellets() {
-        pacman.begin()
-        verify(logConsumer).consume(any())
+    fun pacman_beginsConsumptionAndThenStartsProduction() {
+        StepVerifier.withVirtualTime { pacman.begin() }
+            .thenAwait(Duration.ofMillis(1999))
+            .then { verifyZeroInteractions(logProducer) }
+            .then { verify(logConsumer).consume(any()) }
+            .thenAwait(Duration.ofMillis(1))
+            .then { verify(logProducer, times(20)).produce() }
+            .expectNext(20)
+            .verifyComplete()
     }
 
     @Test
     fun pacman_reportsLogsConsumed() {
+        var pelletsConsumed = 0L
         try {
-            pacman.begin()
-            assertThat(pacman.pelletsConsumed).isEqualTo(20)
+            StepVerifier.withVirtualTime { pacman.begin() }
+                .thenAwait(Duration.ofSeconds(2))
+                .consumeNextWith { pelletsConsumed = it }
+                .verifyComplete()
         } catch(e: PacmanBedTimeException) {
-            fail("Pacman did not eat all his pellets before bedtime: got ${pacman.pelletsConsumed}, expected ${20}")
+            fail("Pacman did not eat all his pellets before bedtime: got $pelletsConsumed, expected ${20}")
         } catch(e: Exception) {
             fail("Something else went wrong: $e")
         }
     }
 
-    @Test(expected = PacmanBedTimeException::class)
+    @Test
     fun pacman_whenNotAllLogsAreConsumed_throwsBedTimeException() {
         `when`(logConsumer.consume(any())).thenReturn(Mono.just(4))
-        pacman.begin()
+        StepVerifier.withVirtualTime { pacman.begin() }
+            .thenAwait(Duration.ofSeconds(2))
+            .expectError(PacmanBedTimeException::class.java)
+            .verify()
     }
 }

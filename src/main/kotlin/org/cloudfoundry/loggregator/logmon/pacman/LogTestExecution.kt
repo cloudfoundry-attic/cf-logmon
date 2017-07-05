@@ -27,14 +27,15 @@ open class LogTestExecution @Autowired constructor(
     @Value("\${logmon.production.logs-per-test}")
     private var totalPelletCount: Int = 10000
 
-    @Scheduled(fixedDelay = 20*1000, initialDelay = 1000)
+    @Scheduled(fixedDelayString = "\${logmon.time-between-tests-millis}")
     open fun runTest() {
         try {
+            log.info("LogTest commencing: ${Date()}")
             metricRepository.set(Metric(LAST_EXECUTION_TIME, 0, Date()))
             counterService.reset(LOGS_PRODUCED)
             counterService.reset(LOGS_CONSUMED)
 
-            Pacman(printer, logSink, totalPelletCount).begin()
+            Pacman(printer, logSink, totalPelletCount).begin().block()
         } catch (e: PacmanBedTimeException) {
             log.info(e.message)
         }
