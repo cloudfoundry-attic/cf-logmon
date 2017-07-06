@@ -35,7 +35,7 @@ open class LogTestExecution @Autowired constructor(
             counterService.reset(LOGS_PRODUCED)
             counterService.reset(LOGS_CONSUMED)
 
-            Pacman(printer, logSink, totalPelletCount).begin().block()
+            Pacman(printer, logSink, metricRepository, totalPelletCount).begin().block()
             log.info("LogTest complete: ${Date()}")
         } catch (e: PacmanBedTimeException) {
             log.info(e.message)

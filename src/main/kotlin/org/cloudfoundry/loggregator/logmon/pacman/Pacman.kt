@@ -2,6 +2,7 @@ package org.cloudfoundry.loggregator.logmon.pacman
 
 import org.cloudfoundry.loggregator.logmon.logs.LogConsumer
 import org.cloudfoundry.loggregator.logmon.logs.LogProducer
+import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -10,10 +11,11 @@ import java.util.function.Supplier
 open class Pacman(
     val logProducer: LogProducer,
     val logConsumer: LogConsumer,
+    val metricRepository: MetricRepository,
     val numPellets: Int
 ) {
     fun begin(): Mono<Long> {
-        val productionTask = queueUpDelayedTask(LogProductionTask(logProducer, numPellets), delayMillis = 2500)
+        val productionTask = queueUpDelayedTask(LogProductionTask(logProducer, metricRepository, numPellets), delayMillis = 2500)
             .subscribe()
         val consumptionComplete = Mono.defer { Mono.just(LogConsumptionTask(logConsumer, productionTask).get()) }
             .log(LogConsumptionTask::class.java.name)

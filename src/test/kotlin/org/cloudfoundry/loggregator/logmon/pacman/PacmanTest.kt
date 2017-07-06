@@ -1,15 +1,19 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
-import org.assertj.core.api.Assertions.fail
+import org.assertj.core.api.Assertions.*
 import org.cloudfoundry.loggregator.logmon.logs.LogConsumer
 import org.cloudfoundry.loggregator.logmon.logs.LogProducer
+import org.cloudfoundry.loggregator.logmon.statistics.LOG_WRITE_TIME_MILLIS
 import org.cloudfoundry.loggregator.logmon.support.any
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.runners.MockitoJUnitRunner
+import org.springframework.boot.actuate.metrics.Metric
+import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.time.Duration
@@ -22,7 +26,10 @@ class PacmanTest {
     @Mock
     private lateinit var logProducer: LogProducer
 
-    private val pacman: Pacman by lazy { Pacman(logProducer, logConsumer, 20) }
+    @Mock
+    private lateinit var metricRepository: MetricRepository
+
+    private val pacman: Pacman by lazy { Pacman(logProducer, logConsumer, metricRepository, 20) }
 
     @Before
     fun setUp() {
@@ -63,5 +70,19 @@ class PacmanTest {
             .thenAwait(Duration.ofSeconds(2))
             .expectError(PacmanBedTimeException::class.java)
             .verify()
+    }
+
+    @Test
+    fun pacman_shouldCaptureTheLogProductionFinishTime() {
+        val captor = ArgumentCaptor.forClass(Metric::class.java)
+        StepVerifier.withVirtualTime { pacman.begin() }
+            .then { verifyZeroInteractions(metricRepository) }
+            .thenAwait(Duration.ofMillis(2500))
+            .then { verify(metricRepository).set(captor.capture()) }
+            .consumeNextWith {  }
+            .verifyComplete()
+
+        assertThat(captor.value.name).isEqualTo("counter.$LOG_WRITE_TIME_MILLIS")
+        assertThat(captor.value.value.toInt()).isIn(0, 1)
     }
 }

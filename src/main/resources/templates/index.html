@@ -29,15 +29,19 @@
     <section class="metrics">
         <section class="metric metric-total-writes">
             <h2 class="metric-label">Logs Written:</h2>
-            <span class="metric-value" th:text="${writeCount}">0</span>
+            <span class="metric-value" th:text="${metricsPage.writeCount}">0</span>
         </section>
         <section class="metric metric-total-reads">
             <h2 class="metric-label">Logs Read:</h2>
-            <span class="metric-value" th:text="${readCount}">0</span>
+            <span class="metric-value" th:text="${metricsPage.readCount}">0</span>
         </section>
         <section class="metric metric-last-execution-time">
             <h2 class="metric-label">Last Test Execution Started At:</h2>
-            <span class="metric-value" th:text="${lastExecutionTime}">0</span>
+            <span class="metric-value" th:text="${metricsPage.lastExecutionTime}">0</span>
+        </section>
+        <section class="metric metric-write-rate">
+            <h2 class="metric-label">Write Rate:</h2>
+            <span class="metric-value" th:text="${metricsPage.writeRateDisplay}">0</span>
         </section>
     </section>
 </body>
