@@ -83,6 +83,6 @@ class PacmanTest {
             .verifyComplete()
 
         assertThat(captor.value.name).isEqualTo("counter.$LOG_WRITE_TIME_MILLIS")
-        assertThat(captor.value.value.toInt()).isIn(0, 1)
+        assertThat(captor.value.value.toDouble()).isBetween(0.0, 5.0)
     }
 }

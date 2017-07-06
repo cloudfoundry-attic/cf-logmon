@@ -6,7 +6,6 @@ import org.cloudfoundry.loggregator.logmon.statistics.setImmediate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.actuate.metrics.repository.MetricRepository
-import org.springframework.util.StopWatch
 import java.util.function.Supplier
 
 class LogProductionTask(val logProducer: LogProducer, val metricRepository: MetricRepository, val numPellets: Int) : Supplier<Unit> {
@@ -17,20 +16,20 @@ class LogProductionTask(val logProducer: LogProducer, val metricRepository: Metr
     override fun get() {
         log.info("Production starting")
 
-        val time = StopWatch().time {
+        val nanoTime = time {
             repeat(numPellets) { _ ->
                 logProducer.produce()
             }
         }
 
-        metricRepository.setImmediate(LOG_WRITE_TIME_MILLIS, time)
+        metricRepository.setImmediate(LOG_WRITE_TIME_MILLIS, nanoTime / 1_000_000.0)
         log.info("Production complete")
     }
 }
 
-fun StopWatch.time(task: () -> Unit): Long {
-    this.start()
+fun time(task: () -> Unit): Long {
+    val start = System.nanoTime()
     task.invoke()
-    this.stop()
-    return this.lastTaskTimeMillis
+    val stop = System.nanoTime()
+    return stop - start
 }

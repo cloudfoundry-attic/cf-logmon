@@ -65,7 +65,7 @@ class LogTestExecutionTest {
 
             assertThat(firstValue.logsProduced).isEqualTo(10_000)
             assertThat(firstValue.logsConsumed).isEqualTo(10_000)
-            assertThat(firstValue.productionDuration).isEqualTo(10_000)
+            assertThat(firstValue.productionDuration).isEqualTo(10_000.0)
         }
     }
 
@@ -79,7 +79,7 @@ class LogTestExecutionTest {
 
             assertThat(firstValue.logsProduced).isEqualTo(10_000)
             assertThat(firstValue.logsConsumed).isEqualTo(10_000)
-            assertThat(firstValue.productionDuration).isEqualTo(10_000)
+            assertThat(firstValue.productionDuration).isEqualTo(10_000.0)
         }
     }
 }

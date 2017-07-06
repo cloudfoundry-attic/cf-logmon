@@ -8,6 +8,10 @@ fun MetricRepository.findCounter(metricName: String): Int {
     return findOne("counter.$metricName")?.value?.toInt() ?: 0
 }
 
+fun MetricRepository.findDouble(metricName: String): Double {
+    return findOne("counter.$metricName")?.value?.toDouble() ?: 0.0
+}
+
 fun MetricRepository.setImmediate(metricName: String, value: Number) {
     this.set(Metric("counter.$metricName", value, Date()))
 }

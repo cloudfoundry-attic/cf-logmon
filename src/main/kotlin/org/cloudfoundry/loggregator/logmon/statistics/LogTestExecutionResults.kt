@@ -6,13 +6,17 @@ data class LogTestExecutionResults(
     val logsProduced: Int,
     val logsConsumed: Int,
     val startTime: Instant,
-    val productionDuration: Int
+    val productionDuration: Double
 ) {
     val writeRateDisplay: String
         get() {
-            return if (productionDuration == 0)
+            return if (productionDuration == 0.0)
                 "$logsProduced logs / < 1 ms"
             else
-                "$logsProduced logs / $productionDuration ms = ${logsProduced / productionDuration} logs/ms"
+                """
+                $logsProduced logs / ${String.format("%.02f", productionDuration)} ms
+                =
+                ${String.format("%.02f", logsProduced / productionDuration)} logs/ms
+                """
         }
 }

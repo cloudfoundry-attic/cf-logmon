@@ -20,6 +20,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.w3c.dom.Document
+import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.time.Instant
 import java.util.regex.Pattern
@@ -49,7 +50,9 @@ class StatisticsUiTest {
 
     @Before
     fun setUp() {
-        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, now, 2_000)))
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
+            LogTestExecutionResults(10_000, 9_500, now, 2000.0)
+        ))
     }
 
     @Test
@@ -83,12 +86,12 @@ class StatisticsUiTest {
     fun theApp_shouldDisplayLogBatchSizeOverWriteTime() {
         val writeRate = page().xpath("//section[@class='metric metric-write-rate']")
         assertThat(writeRate.length).isEqualTo(1)
-        assertThat(writeRate.text).isEqualToIgnoringCase("Write Rate: 10000 logs / 2000 ms = 5 logs/ms")
+        assertThat(writeRate.text).isEqualToIgnoringCase("Write Rate: 10000 logs / 2000.00 ms = 5.00 logs/ms")
     }
 
     @Test
     fun theApp_doesNotDisplayTheWriteRateRatioWhenTheWriteTimeIsZero() {
-        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 0)))
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 0.0)))
 
         val writeRate = page().xpath("//section[@class='metric metric-write-rate']")
         assertThat(writeRate.length).isEqualTo(1)
@@ -97,7 +100,7 @@ class StatisticsUiTest {
 
     @Test
     fun theApp_hasALinkToTheListOfLogTestExecutions() {
-        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 2_000)))
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 2_000.0)))
         val link = page().xpath("//a[@href='/tests']")
         val listPage = page(link.href)
 
@@ -113,7 +116,7 @@ class StatisticsUiTest {
         assertThat(cells.item(0).textContent).matches(ISO8601)
         assertThat(cells.item(1).textContent).isEqualTo("10000")
         assertThat(cells.item(2).textContent).isEqualTo("9500")
-        assertThat(cells.item(3).textContent).isEqualTo("10000 logs / 2000 ms = 5 logs/ms")
+        assertThat(cells.item(3).text).isEqualTo("10000 logs / 2000.00 ms = 5.00 logs/ms")
     }
 
     private fun page(path: String = "/"): Document {
@@ -124,7 +127,10 @@ class StatisticsUiTest {
         get() = xpath("//body").item(0).textContent
 
     private val NodeList.text: String
-        get() = item(0).textContent.trim().replace(Regex("\\s+"), " ")
+        get() = item(0).text
+
+    private val Node.text: String
+        get() = textContent.trim().replace(Regex("\\s+"), " ")
 
     private val NodeList.href: String
         get() = item(0).attributes.getNamedItem("href").textContent

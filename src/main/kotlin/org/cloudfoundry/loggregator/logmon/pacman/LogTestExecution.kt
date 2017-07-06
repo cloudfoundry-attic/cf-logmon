@@ -40,7 +40,7 @@ open class LogTestExecution @Autowired constructor(
                     metricRepository.findCounter(LOGS_PRODUCED),
                     metricRepository.findCounter(LOGS_CONSUMED),
                     metricRepository.findOne(LAST_EXECUTION_TIME).timestamp.toInstant(),
-                    metricRepository.findCounter("counter.$LOG_WRITE_TIME_MILLIS")
+                    metricRepository.findDouble(LOG_WRITE_TIME_MILLIS)
                 ))
             }
             .onErrorResume {
