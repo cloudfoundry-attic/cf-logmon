@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <title>Test Executions</title>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th>Execution Time</th>
+        <th>Logs Produced</th>
+        <th>Logs Consumed</th>
+        <th>Write Rate</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="test : ${testResults}">
+        <td th:text="${test.startTime}"></td>
+        <td th:text="${test.logsProduced}"></td>
+        <td th:text="${test.logsConsumed}"></td>
+        <td th:text="${test.writeRateDisplay}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

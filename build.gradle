@@ -5,6 +5,7 @@ buildscript {
         cfClientVersion = '2.13.0.RELEASE'
         reactorVersion = '3.0.7.RELEASE'
         reactorNettyVersion = '0.6.3.RELEASE'
+        mockitoKotlinVersion = '1.5.0'
     }
     repositories {
         mavenCentral()
@@ -41,6 +42,7 @@ dependencies {
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("io.projectreactor.addons:reactor-test:$reactorVersion")
+    testCompile("com.nhaarman:mockito-kotlin-kt1.1:$mockitoKotlinVersion")
 }
 
 defaultTasks 'clean', 'test'

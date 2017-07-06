@@ -1,8 +1,6 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
-import org.cloudfoundry.loggregator.logmon.statistics.LAST_EXECUTION_TIME
-import org.cloudfoundry.loggregator.logmon.statistics.LOGS_CONSUMED
-import org.cloudfoundry.loggregator.logmon.statistics.LOGS_PRODUCED
+import org.cloudfoundry.loggregator.logmon.statistics.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -18,7 +16,8 @@ open class LogTestExecution @Autowired constructor(
     private val printer: Printer,
     private val logSink: LogSink,
     private val counterService: CounterService,
-    private val metricRepository: MetricRepository
+    private val metricRepository: MetricRepository,
+    private val logTestExecutionsRepo: LogTestExecutionsRepo
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
@@ -36,6 +35,12 @@ open class LogTestExecution @Autowired constructor(
             counterService.reset(LOGS_CONSUMED)
 
             Pacman(printer, logSink, metricRepository, totalPelletCount).begin().block()
+            logTestExecutionsRepo.save(LogTestExecutionResults(
+                metricRepository.findCounter(LOGS_PRODUCED),
+                metricRepository.findCounter(LOGS_CONSUMED),
+                metricRepository.findOne(LAST_EXECUTION_TIME).timestamp.toInstant(),
+                metricRepository.findCounter("counter.$LOG_WRITE_TIME_MILLIS")
+            ))
             log.info("LogTest complete: ${Date()}")
         } catch (e: PacmanBedTimeException) {
             log.info(e.message)

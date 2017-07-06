@@ -1,8 +1,8 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
-import org.cloudfoundry.loggregator.logmon.statistics.LAST_EXECUTION_TIME
-import org.cloudfoundry.loggregator.logmon.statistics.LOGS_CONSUMED
-import org.cloudfoundry.loggregator.logmon.statistics.LOGS_PRODUCED
+import com.nhaarman.mockito_kotlin.argumentCaptor
+import org.assertj.core.api.Assertions.assertThat
+import org.cloudfoundry.loggregator.logmon.statistics.*
 import org.cloudfoundry.loggregator.logmon.support.any
 import org.junit.Before
 import org.junit.Test
@@ -31,12 +31,16 @@ class LogTestExecutionTest {
     @Mock
     private lateinit var metricRepository: MetricRepository
 
+    @Mock
+    private lateinit var logTestExecutionsRepo: LogTestExecutionsRepo
+
     @InjectMocks
     private lateinit var logTest: LogTestExecution
 
     @Before
     fun setUp() {
         `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(10_000))
+        `when`(metricRepository.findOne(anyString())).thenReturn(Metric("metric", 10_000, Date()))
     }
 
     @Test
@@ -50,5 +54,18 @@ class LogTestExecutionTest {
     fun runTest_shouldSetTheLastExecutionTime() {
         logTest.runTest()
         verify(metricRepository).set(Metric(LAST_EXECUTION_TIME, 0, any(Date::class.java)))
+    }
+
+    @Test
+    fun runTest_shouldAddTheExecutionResultsToTheRepo() {
+        logTest.runTest()
+
+        argumentCaptor<LogTestExecutionResults>().apply {
+            verify(logTestExecutionsRepo).save(capture())
+
+            assertThat(firstValue.logsProduced).isEqualTo(10_000)
+            assertThat(firstValue.logsConsumed).isEqualTo(10_000)
+            assertThat(firstValue.productionDuration).isEqualTo(10_000)
+        }
     }
 }

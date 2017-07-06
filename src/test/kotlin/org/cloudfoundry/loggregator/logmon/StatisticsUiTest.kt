@@ -2,17 +2,15 @@ package org.cloudfoundry.loggregator.logmon
 
 import org.assertj.core.api.Assertions.assertThat
 import org.cloudfoundry.loggregator.logmon.pacman.LogTestExecution
-import org.cloudfoundry.loggregator.logmon.statistics.*
+import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionResults
+import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionsRepo
 import org.cloudfoundry.loggregator.logmon.support.getHtml
 import org.cloudfoundry.loggregator.logmon.support.xpath
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.actuate.metrics.CounterService
-import org.springframework.boot.actuate.metrics.Metric
-import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.w3c.dom.Document
 import org.w3c.dom.NodeList
 import java.time.Instant
-import java.util.*
+import java.util.regex.Pattern
 
 
 @RunWith(SpringRunner::class)
@@ -35,98 +33,99 @@ class StatisticsUiTest {
     @MockBean
     private lateinit var logTestExecution: LogTestExecution
 
+    @MockBean
+    private lateinit var logTestExecutionsRepo: LogTestExecutionsRepo
+
     @LocalServerPort
     private var port: Int = -1
 
     private val baseUrl
-        get() = "http://localhost:$port/"
-
-    @Autowired
-    private lateinit var counterService: CounterService
-
-    @Autowired
-    private lateinit var metricRepository: MetricRepository
+        get() = "http://localhost:$port"
 
     @Autowired
     private lateinit var http: TestRestTemplate
 
+    val now by lazy { Instant.now() }
+
     @Before
     fun setUp() {
-        metricRepository.set(Metric(LAST_EXECUTION_TIME, 0, Date(Instant.now().toEpochMilli())))
-        metricRepository.setImmediate(LOG_WRITE_TIME_MILLIS, 10)
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, now, 2_000)))
     }
 
-    @After
-    fun tearDown() {
-        metricRepository.reset("counter.$LOGS_PRODUCED")
-        metricRepository.reset("counter.$LOGS_CONSUMED")
-        metricRepository.reset("counter.$LOG_WRITE_TIME_MILLIS")
-        metricRepository.reset(LAST_EXECUTION_TIME)
+    @Test
+    fun theApp_whenNoTestsHaveCompleted_shouldNotifyUserOfNoTests() {
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf())
+        assertThat(page().text).contains("No tests have completed yet.")
     }
 
     @Test
     fun theApp_shouldDisplayNumberOfWrites() {
-        var writes = page.xpath("//section[@class='metric metric-total-writes']")
+        val writes = page().xpath("//section[@class='metric metric-total-writes']")
         assertThat(writes.length).isEqualTo(1)
-        assertThat(writes.text).isEqualToIgnoringCase("Logs Written: 0")
-
-        counterService.increment(LOGS_PRODUCED)
-        counterService.increment(LOGS_PRODUCED)
-        counterService.increment(LOGS_PRODUCED)
-        counterService.increment(LOGS_PRODUCED)
-        counterService.increment(LOGS_PRODUCED)
-
-        writes = page.xpath("//section[@class='metric metric-total-writes']")
-        assertThat(writes.text).isEqualToIgnoringCase("Logs Written: 5")
+        assertThat(writes.text).isEqualToIgnoringCase("Logs Written: 10000")
     }
 
     @Test
     fun theApp_shouldDisplayNumberOfReads() {
-        var reads = page.xpath("//section[@class='metric metric-total-reads']")
+        val reads = page().xpath("//section[@class='metric metric-total-reads']")
         assertThat(reads.length).isEqualTo(1)
-        assertThat(reads.text).isEqualToIgnoringCase("Logs Read: 0")
-
-        counterService.increment(LOGS_CONSUMED)
-        counterService.increment(LOGS_CONSUMED)
-        counterService.increment(LOGS_CONSUMED)
-
-        reads = page.xpath("//section[@class='metric metric-total-reads']")
-        assertThat(reads.text).isEqualToIgnoringCase("Logs Read: 3")
+        assertThat(reads.text).isEqualToIgnoringCase("Logs Read: 9500")
     }
 
     @Test
     fun theApp_shouldDisplayTheLastTestExecutionStartTime() {
-        val now = Instant.now()
-        metricRepository.set(Metric(LAST_EXECUTION_TIME, 1, Date(now.toEpochMilli())))
-
-        val lastExecutionTime = page.xpath("//section[@class='metric metric-last-execution-time']")
+        val lastExecutionTime = page().xpath("//section[@class='metric metric-last-execution-time']")
         assertThat(lastExecutionTime.length).isEqualTo(1)
         assertThat(lastExecutionTime.text).isEqualToIgnoringCase("Last Test Execution Started At: $now")
     }
 
     @Test
     fun theApp_shouldDisplayLogBatchSizeOverWriteTime() {
-        metricRepository.set(Metric("counter.$LOGS_PRODUCED", 10000, Date()))
-        metricRepository.set(Metric("counter.$LOG_WRITE_TIME_MILLIS", 2000, Date()))
-
-        val writeRate = page.xpath("//section[@class='metric metric-write-rate']")
+        val writeRate = page().xpath("//section[@class='metric metric-write-rate']")
         assertThat(writeRate.length).isEqualTo(1)
         assertThat(writeRate.text).isEqualToIgnoringCase("Write Rate: 10000 logs / 2000 ms = 5 logs/ms")
     }
 
     @Test
     fun theApp_doesNotDisplayTheWriteRateRatioWhenTheWriteTimeIsZero() {
-        metricRepository.set(Metric("counter.$LOGS_PRODUCED", 10000, Date()))
-        metricRepository.set(Metric("counter.$LOG_WRITE_TIME_MILLIS", 0, Date()))
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 0)))
 
-        val writeRate = page.xpath("//section[@class='metric metric-write-rate']")
+        val writeRate = page().xpath("//section[@class='metric metric-write-rate']")
         assertThat(writeRate.length).isEqualTo(1)
         assertThat(writeRate.text).isEqualToIgnoringCase("Write Rate: 10000 logs / < 1 ms")
     }
 
-    private val page: Document
-        get() = http.getForObject(baseUrl, String::class.java).getHtml()
+    @Test
+    fun theApp_hasALinkToTheListOfLogTestExecutions() {
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 2_000)))
+        val link = page().xpath("//a[@href='/tests']")
+        val listPage = page(link.href)
+
+        val rows = listPage.xpath("//table/tbody/tr")
+        assertThat(rows.length).isEqualTo(1)
+            .withFailMessage("Expected page to have <%s> rows, had <%s>.", 1, rows.length)
+
+        val cells = listPage.xpath("//table/tbody/tr/td")
+        assertThat(cells.length).isEqualTo(4)
+            .withFailMessage("Expected page to have <%s> cells, had <%s>.", 4, cells.length)
+
+        val ISO8601 = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")
+        assertThat(cells.item(0).textContent).matches(ISO8601)
+        assertThat(cells.item(1).textContent).isEqualTo("10000")
+        assertThat(cells.item(2).textContent).isEqualTo("9500")
+        assertThat(cells.item(3).textContent).isEqualTo("10000 logs / 2000 ms = 5 logs/ms")
+    }
+
+    private fun page(path: String = "/"): Document {
+        return http.getForObject(baseUrl + path, String::class.java).getHtml()
+    }
+
+    private val Document.text: String
+        get() = xpath("//body").item(0).textContent
 
     private val NodeList.text: String
         get() = item(0).textContent.trim().replace(Regex("\\s+"), " ")
+
+    private val NodeList.href: String
+        get() = item(0).attributes.getNamedItem("href").textContent
 }
