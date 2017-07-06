@@ -29,7 +29,7 @@ class PacmanTest {
     @Mock
     private lateinit var metricRepository: MetricRepository
 
-    private val pacman: Pacman by lazy { Pacman(logProducer, logConsumer, metricRepository, 20) }
+    private val pacman: Pacman by lazy { Pacman(logProducer, logConsumer, metricRepository, 20, 2500) }
 
     @Before
     fun setUp() {

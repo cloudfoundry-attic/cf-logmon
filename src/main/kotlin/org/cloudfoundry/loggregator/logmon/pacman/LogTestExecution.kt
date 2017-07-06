@@ -25,7 +25,10 @@ open class LogTestExecution @Autowired constructor(
     }
 
     @Value("\${logmon.production.logs-per-test}")
-    private var totalPelletCount: Int = 10000
+    private var totalPelletCount: Int = 10_000
+
+    @Value("\${logmon.production.initial-delay-millis}")
+    private var productionDelayMillis = 10_000L
 
     @Scheduled(fixedDelayString = "\${logmon.time-between-tests-millis}", initialDelay = 1000)
     open fun runTest() {
@@ -34,7 +37,7 @@ open class LogTestExecution @Autowired constructor(
         counterService.reset(LOGS_PRODUCED)
         counterService.reset(LOGS_CONSUMED)
 
-        Pacman(printer, logSink, metricRepository, totalPelletCount).begin()
+        Pacman(printer, logSink, metricRepository, totalPelletCount, productionDelayMillis).begin()
             .doFinally {
                 logTestExecutionsRepo.save(LogTestExecutionResults(
                     metricRepository.findCounter(LOGS_PRODUCED),

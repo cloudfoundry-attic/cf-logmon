@@ -12,10 +12,11 @@ open class Pacman(
     val logProducer: LogProducer,
     val logConsumer: LogConsumer,
     val metricRepository: MetricRepository,
-    val numPellets: Int
+    val numPellets: Int,
+    val productionDelayMillis: Long
 ) {
     fun begin(): Mono<Long> {
-        val productionTask = queueUpDelayedTask(LogProductionTask(logProducer, metricRepository, numPellets), delayMillis = 2500)
+        val productionTask = queueUpDelayedTask(LogProductionTask(logProducer, metricRepository, numPellets), delayMillis = productionDelayMillis)
             .subscribe()
         val consumptionComplete = Mono.defer { Mono.just(LogConsumptionTask(logConsumer, productionTask).get()) }
             .log(LogConsumptionTask::class.java.name)
