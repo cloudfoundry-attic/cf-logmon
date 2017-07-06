@@ -9,6 +9,7 @@ import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import java.util.*
 
 @Component
@@ -28,22 +29,25 @@ open class LogTestExecution @Autowired constructor(
 
     @Scheduled(fixedDelayString = "\${logmon.time-between-tests-millis}", initialDelay = 1000)
     open fun runTest() {
-        try {
-            log.info("LogTest commencing: ${Date()}")
-            metricRepository.set(Metric(LAST_EXECUTION_TIME, 0, Date()))
-            counterService.reset(LOGS_PRODUCED)
-            counterService.reset(LOGS_CONSUMED)
+        log.info("LogTest commencing: ${Date()}")
+        metricRepository.set(Metric(LAST_EXECUTION_TIME, 0, Date()))
+        counterService.reset(LOGS_PRODUCED)
+        counterService.reset(LOGS_CONSUMED)
 
-            Pacman(printer, logSink, metricRepository, totalPelletCount).begin().block()
-            logTestExecutionsRepo.save(LogTestExecutionResults(
-                metricRepository.findCounter(LOGS_PRODUCED),
-                metricRepository.findCounter(LOGS_CONSUMED),
-                metricRepository.findOne(LAST_EXECUTION_TIME).timestamp.toInstant(),
-                metricRepository.findCounter("counter.$LOG_WRITE_TIME_MILLIS")
-            ))
-            log.info("LogTest complete: ${Date()}")
-        } catch (e: PacmanBedTimeException) {
-            log.info(e.message)
-        }
+        Pacman(printer, logSink, metricRepository, totalPelletCount).begin()
+            .doFinally {
+                logTestExecutionsRepo.save(LogTestExecutionResults(
+                    metricRepository.findCounter(LOGS_PRODUCED),
+                    metricRepository.findCounter(LOGS_CONSUMED),
+                    metricRepository.findOne(LAST_EXECUTION_TIME).timestamp.toInstant(),
+                    metricRepository.findCounter("counter.$LOG_WRITE_TIME_MILLIS")
+                ))
+            }
+            .onErrorResume {
+                log.error("OH NOES, ${it.message}")
+                Mono.just(0)
+            }
+            .block()
+        log.info("LogTest complete: ${Date()}")
     }
 }

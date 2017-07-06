@@ -68,4 +68,18 @@ class LogTestExecutionTest {
             assertThat(firstValue.productionDuration).isEqualTo(10_000)
         }
     }
+
+    @Test
+    fun runTest_whenTheTestFails_shouldSavetheResults() {
+        `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(999))
+        logTest.runTest()
+
+        argumentCaptor<LogTestExecutionResults>().apply {
+            verify(logTestExecutionsRepo).save(capture())
+
+            assertThat(firstValue.logsProduced).isEqualTo(10_000)
+            assertThat(firstValue.logsConsumed).isEqualTo(10_000)
+            assertThat(firstValue.productionDuration).isEqualTo(10_000)
+        }
+    }
 }
