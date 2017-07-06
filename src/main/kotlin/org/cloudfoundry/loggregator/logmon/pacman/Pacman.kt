@@ -13,14 +13,12 @@ open class Pacman(
     val numPellets: Int
 ) {
     fun begin(): Mono<Long> {
-        val logProductionTask = LogProductionTask(logProducer, numPellets)
-        val productionTask = queueUpTask(logProductionTask, delaySeconds = 2)
+        val productionTask = queueUpDelayedTask(LogProductionTask(logProducer, numPellets), delayMillis = 2500)
+            .subscribe()
+        val consumptionComplete = Mono.defer { Mono.just(LogConsumptionTask(logConsumer, productionTask).get()) }
+            .log(LogConsumptionTask::class.java.name)
 
-        val logConsumptionTask = LogConsumptionTask(logConsumer, productionTask)
-        val consumptionComplete = queueUpTask(logConsumptionTask, delaySeconds = 0)
-
-        return consumptionComplete.and(productionTask).map { tuple ->
-            val pelletsConsumed = tuple.t1
+        return consumptionComplete.map { pelletsConsumed ->
             if (pelletsConsumed < numPellets) {
                 throw notEnoughException(pelletsConsumed)
             }
@@ -28,11 +26,13 @@ open class Pacman(
         }
     }
 
-    private fun <T> queueUpTask(task: Supplier<T>, delaySeconds: Long): Mono<T> {
-        return Flux.fromIterable(listOf(task))
-            .delayElements(Duration.ofSeconds(delaySeconds))
-            .log()
-            .map { t -> t.get() }
+    private fun <T> queueUpDelayedTask(task: Supplier<T>, delayMillis: Long): Mono<T> {
+        return Flux.from<T>({
+            task.get()
+            it.onComplete()
+        })
+            .delaySubscription(Duration.ofMillis(delayMillis))
+            .log(task::class.java.name)
             .publish().autoConnect()
             .next()
     }

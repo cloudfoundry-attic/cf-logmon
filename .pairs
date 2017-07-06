@@ -3,6 +3,8 @@ pairs:
   # <initials>: <Firstname> <Lastname>[; <email-id>]
   tj: TJ Taylor; ttaylor
   mp: Michael Pace; mpace
+  cw: Chris Wang; cwang
+  md: Mark Douglass; mdouglass
 email:
   prefix: pair
   domain: pivotal.io

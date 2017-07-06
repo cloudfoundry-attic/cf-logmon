@@ -33,39 +33,39 @@ open class CfConfiguration {
 
     @Bean
     open fun uaaClient(connectionContext: ConnectionContext, tokenProvider: TokenProvider): UaaClient =
-            ReactorUaaClient.builder()
-                    .connectionContext(connectionContext)
-                    .tokenProvider(tokenProvider)
-                    .build()
+        ReactorUaaClient.builder()
+            .connectionContext(connectionContext)
+            .tokenProvider(tokenProvider)
+            .build()
 
     @Bean
     open fun connectionContext(cfApiHost: String): DefaultConnectionContext {
         return DefaultConnectionContext.builder()
-                .apiHost(cfApiHost)
-                .build()
+            .apiHost(cfApiHost)
+            .build()
     }
 
     @Bean
     open fun tokenProvider(cfLoginInfo: CfLoginInfo): TokenProvider {
         return PasswordGrantTokenProvider.builder()
-                .username(cfLoginInfo.username)
-                .password(cfLoginInfo.password)
-                .build()
+            .username(cfLoginInfo.username)
+            .password(cfLoginInfo.password)
+            .build()
     }
 
     @Bean
     open fun cloudFoundryClient(connectionContext: ConnectionContext, tokenProvider: TokenProvider): CloudFoundryClient {
         return ReactorCloudFoundryClient.builder()
-                .connectionContext(connectionContext)
-                .tokenProvider(tokenProvider)
-                .build()
+            .connectionContext(connectionContext)
+            .tokenProvider(tokenProvider)
+            .build()
     }
 
     @Bean
     open fun dopplerClient(connectionContext: ConnectionContext, tokenProvider: TokenProvider): DopplerClient {
         return ReactorDopplerClient.builder()
-                .connectionContext(connectionContext)
-                .tokenProvider(tokenProvider)
-                .build()
+            .connectionContext(connectionContext)
+            .tokenProvider(tokenProvider)
+            .build()
     }
 }

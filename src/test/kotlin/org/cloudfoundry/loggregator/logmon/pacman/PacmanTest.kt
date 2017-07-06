@@ -32,7 +32,7 @@ class PacmanTest {
     @Test
     fun pacman_beginsConsumptionAndThenStartsProduction() {
         StepVerifier.withVirtualTime { pacman.begin() }
-            .thenAwait(Duration.ofMillis(1999))
+            .thenAwait(Duration.ofMillis(2499))
             .then { verifyZeroInteractions(logProducer) }
             .then { verify(logConsumer).consume(any()) }
             .thenAwait(Duration.ofMillis(1))
