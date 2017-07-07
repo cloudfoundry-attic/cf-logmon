@@ -1,28 +1,56 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>Test Executions</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.9.1/d3.js"
+            integrity="sha256-58J0lufc42SnFtW9x/nNt8JDtRQsjbtk1gzjPI4Fypw=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//styleguide.pivotal.io/components.css"/>
+
+    <style>
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: 60px;
+            height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-<table>
-    <thead>
-    <tr>
-        <th>Execution Time</th>
-        <th>Logs Produced</th>
-        <th>Logs Consumed</th>
-        <th>Write Rate</th>
-    </tr>
-    </thead>
+    <div class="panel bg-neutral-11">
+        <div class="panel-header">
+            <div class="panel-title">Logmon Dashboard</div>
+        </div>
+        <div class="panel-body">
 
-    <tbody>
-    <tr th:each="test : ${testResults}">
-        <td th:text="${test.startTime}"></td>
-        <td th:text="${test.logsProduced}"></td>
-        <td th:text="${test.logsConsumed}"></td>
-        <td th:text="${test.writeRateDisplay}"></td>
-    </tr>
-    </tbody>
-</table>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Execution Time</th>
+                    <th>Logs Produced</th>
+                    <th>Logs Consumed</th>
+                    <th>Write Rate</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="test : ${testResults}">
+                    <td th:text="${test.startTime}"></td>
+                    <td th:text="${test.logsProduced}"></td>
+                    <td th:text="${test.logsConsumed}"></td>
+                    <td th:text="${test.writeRateDisplay}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <script type="application/javascript" src="/js/graph.js"></script>
 </body>
 </html>

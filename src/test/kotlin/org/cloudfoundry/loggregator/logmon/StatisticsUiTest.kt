@@ -17,11 +17,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.http.MediaType
+import org.springframework.http.RequestEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+import java.net.URI
 import java.time.Instant
 import java.util.regex.Pattern
 
@@ -120,7 +123,10 @@ class StatisticsUiTest {
     }
 
     private fun page(path: String = "/"): Document {
-        return http.getForObject(baseUrl + path, String::class.java).getHtml()
+        val request = RequestEntity.get(URI(baseUrl + path))
+            .accept(MediaType.TEXT_HTML)
+            .build()
+        return http.exchange(request, String::class.java).body.getHtml()
     }
 
     private val Document.text: String

@@ -6,6 +6,7 @@ buildscript {
         reactorVersion = '3.0.7.RELEASE'
         reactorNettyVersion = '0.6.3.RELEASE'
         mockitoKotlinVersion = '1.5.0'
+        jsr310Version = '2.8.9'
     }
     repositories {
         mavenCentral()
@@ -39,6 +40,9 @@ dependencies {
     compile('org.cloudfoundry:cloudfoundry-operations:2.13.0.RELEASE')
     compile("io.projectreactor:reactor-core:$reactorVersion")
     compile("io.projectreactor.ipc:reactor-netty:$reactorNettyVersion")
+    compile("com.fasterxml.jackson.module:jackson-module-parameter-names:$jsr310Version")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jsr310Version")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jsr310Version")
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("io.projectreactor.addons:reactor-test:$reactorVersion")

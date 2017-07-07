@@ -1,10 +1,12 @@
 package org.cloudfoundry.loggregator.logmon
 
+import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionResults
 import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionsRepo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 class HomeController @Autowired constructor(private val logTestExecutionsRepo: LogTestExecutionsRepo) {
@@ -18,5 +20,11 @@ class HomeController @Autowired constructor(private val logTestExecutionsRepo: L
     fun testIndex(model: Model): String {
         model.addAttribute("testResults", logTestExecutionsRepo.findAll())
         return "tests/index"
+    }
+
+    @GetMapping(path = arrayOf("/tests"), produces = arrayOf("application/json"))
+    @ResponseBody
+    fun testIndexJson(): List<LogTestExecutionResults> {
+        return logTestExecutionsRepo.findAll()
     }
 }
