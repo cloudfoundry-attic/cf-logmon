@@ -17,7 +17,7 @@ logmon:
   consumption:
     post-production-wait-time-millis: 10000
   production:
-    logs-per-test: 10000
+    app-profile: normal
     initial-delay-millis: 10000
   time-between-tests-millis: 60000
 
