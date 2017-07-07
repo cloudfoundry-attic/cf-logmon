@@ -3,10 +3,8 @@ package org.cloudfoundry.loggregator.logmon.pacman
 import org.cloudfoundry.loggregator.logmon.logs.LogConsumer
 import org.cloudfoundry.loggregator.logmon.logs.LogProducer
 import org.springframework.boot.actuate.metrics.repository.MetricRepository
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
-import java.util.function.Supplier
 
 open class Pacman(
     val logProducer: LogProducer,
@@ -16,8 +14,12 @@ open class Pacman(
     val productionDelayMillis: Long
 ) {
     fun begin(): Mono<Long> {
-        val productionTask = queueUpDelayedTask(LogProductionTask(logProducer, metricRepository, numPellets), delayMillis = productionDelayMillis)
+        val productionTask = LogProductionTask(logProducer, metricRepository, numPellets).get()
+            .delaySubscription(Duration.ofMillis(productionDelayMillis))
+            .publish().autoConnect()
+            .next()
             .subscribe()
+
         val consumptionComplete = Mono.defer { Mono.just(LogConsumptionTask(logConsumer, productionTask).get()) }
             .log(LogConsumptionTask::class.java.name)
 
@@ -27,17 +29,6 @@ open class Pacman(
             }
             pelletsConsumed
         }
-    }
-
-    private fun <T> queueUpDelayedTask(task: Supplier<T>, delayMillis: Long): Mono<T> {
-        return Flux.from<T>({
-            task.get()
-            it.onComplete()
-        })
-            .delaySubscription(Duration.ofMillis(delayMillis))
-            .log(task::class.java.name)
-            .publish().autoConnect()
-            .next()
     }
 
     private fun notEnoughException(actual: Long) =

@@ -1,6 +1,7 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.cloudfoundry.loggregator.logmon.logs.LogConsumer
 import org.cloudfoundry.loggregator.logmon.logs.LogProducer
 import org.cloudfoundry.loggregator.logmon.statistics.LOG_WRITE_TIME_MILLIS
@@ -43,6 +44,7 @@ class PacmanTest {
             .then { verifyZeroInteractions(logProducer) }
             .then { verify(logConsumer).consume(any()) }
             .thenAwait(Duration.ofMillis(1))
+            .thenAwait(Duration.ofMillis(1000))
             .then { verify(logProducer, times(20)).produce() }
             .expectNext(20)
             .verifyComplete()
@@ -78,11 +80,12 @@ class PacmanTest {
         StepVerifier.withVirtualTime { pacman.begin() }
             .then { verifyZeroInteractions(metricRepository) }
             .thenAwait(Duration.ofMillis(2500))
+            .thenAwait(Duration.ofMillis(1000))
             .then { verify(metricRepository).set(captor.capture()) }
-            .consumeNextWith {  }
+            .consumeNextWith { }
             .verifyComplete()
 
         assertThat(captor.value.name).isEqualTo("counter.$LOG_WRITE_TIME_MILLIS")
-        assertThat(captor.value.value.toDouble()).isBetween(0.0, 5.0)
+        assertThat(captor.value.value.toDouble()).isEqualTo(1000.0)
     }
 }

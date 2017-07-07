@@ -5,6 +5,7 @@ pairs:
   mp: Michael Pace; mpace
   cw: Chris Wang; cwang
   md: Mark Douglass; mdouglass
+  ge: Greg Eng; geng
 email:
   prefix: pair
   domain: pivotal.io
