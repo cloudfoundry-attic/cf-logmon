@@ -12,14 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody
 class HomeController @Autowired constructor(private val logTestExecutionsRepo: LogTestExecutionsRepo) {
     @GetMapping(path = arrayOf("/"), produces = arrayOf("text/html"))
     fun index(model: Model): String {
-        model.addAttribute("testResult", logTestExecutionsRepo.findAll().lastOrNull())
-        return "index"
-    }
-
-    @GetMapping(path = arrayOf("/tests"), produces = arrayOf("text/html"))
-    fun testIndex(model: Model): String {
         model.addAttribute("testResults", logTestExecutionsRepo.findAll())
-        return "tests/index"
+        return "index"
     }
 
     @GetMapping(path = arrayOf("/tests"), produces = arrayOf("application/json"))
