@@ -52,26 +52,14 @@ class PacmanTest {
 
     @Test
     fun pacman_reportsLogsConsumed() {
-        var pelletsConsumed = 0L
         try {
             StepVerifier.withVirtualTime { pacman.begin() }
-                .thenAwait(Duration.ofSeconds(2))
-                .consumeNextWith { pelletsConsumed = it }
+                .thenAwait(Duration.ofSeconds(5))
+                .consumeNextWith { }
                 .verifyComplete()
-        } catch(e: PacmanBedTimeException) {
-            fail("Pacman did not eat all his pellets before bedtime: got $pelletsConsumed, expected ${20}")
         } catch(e: Exception) {
             fail("Something else went wrong: $e")
         }
-    }
-
-    @Test
-    fun pacman_whenNotAllLogsAreConsumed_throwsBedTimeException() {
-        `when`(logConsumer.consume(any())).thenReturn(Mono.just(4))
-        StepVerifier.withVirtualTime { pacman.begin() }
-            .thenAwait(Duration.ofSeconds(2))
-            .expectError(PacmanBedTimeException::class.java)
-            .verify()
     }
 
     @Test

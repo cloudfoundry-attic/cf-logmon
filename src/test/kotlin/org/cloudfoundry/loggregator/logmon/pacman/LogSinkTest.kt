@@ -89,6 +89,17 @@ class LogSinkTest {
             .verifyComplete()
     }
 
+    @Test
+    fun consume_whenLogStreamForApplicationThrows_continuesWithNANLogs() {
+        val productionCompletePublisher = TestPublisher.create<Unit>()
+        StepVerifier.withVirtualTime {
+            `when`(logStreamer.logStreamForApplication(any())).thenReturn(Flux.error(NullPointerException()))
+            LogSink(appEnv, logStreamer, counterService).consume(productionCompletePublisher.mono())
+        }
+            .expectNextMatches { count -> count == -1L }
+            .verifyComplete()
+    }
+
     private fun message(text: String): LogMessage = LogMessage.builder()
         .message(text)
         .messageType(MessageType.OUT)

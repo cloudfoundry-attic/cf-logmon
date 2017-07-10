@@ -17,20 +17,14 @@ open class Pacman(
         val productionTask = LogProductionTask(logProducer, metricRepository, numPellets).get()
             .delaySubscription(Duration.ofMillis(productionDelayMillis))
             .publish().autoConnect()
-            .next()
+            .ignoreElements()
             .subscribe()
 
-        val consumptionComplete = Mono.defer { Mono.just(LogConsumptionTask(logConsumer, productionTask).get()) }
+        val consumptionTask = Mono.defer {
+            Mono.just(LogConsumptionTask(logConsumer, productionTask).get())
+        }.subscribe()
+
+        return productionTask.then(consumptionTask)
             .log(LogConsumptionTask::class.java.name)
-
-        return consumptionComplete.map { pelletsConsumed ->
-            if (pelletsConsumed < numPellets) {
-                throw notEnoughException(pelletsConsumed)
-            }
-            pelletsConsumed
-        }
     }
-
-    private fun notEnoughException(actual: Long) =
-        PacmanBedTimeException("Got less than the requisite number of pellets: $actual < $numPellets")
 }

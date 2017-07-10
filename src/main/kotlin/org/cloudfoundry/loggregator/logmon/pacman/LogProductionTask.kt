@@ -19,7 +19,7 @@ class LogProductionTask(val logProducer: LogProducer, val metricRepository: Metr
      * Generate logs at given intervals.
      * For pellet counts up to 1000, we can generate a reasonable delay between log production events.
      * When the pellet count goes over 1000, the JVM can't guarantee sub-ms precision, so we emit multiple per
-     * millisecond. Any pellets that cannot be evenly distributed are emitted in the first millisecond.
+     * millisecond. Any pellets that cannot be evenly distributed are front-loaded on the first M milliseconds.
      *
      * With 2 pellets:
      *
@@ -28,11 +28,11 @@ class LogProductionTask(val logProducer: LogProducer, val metricRepository: Metr
      * Logs: 1L-----------1L-------------0L -- Complete
      *
      *
-     * With 2999 pellets:
+     * With 2002 pellets:
      *
      * Time: 0---1---2---.....-----------1000
      *
-     * Logs: 1001L--2L--2L--.....-----------2L -- Complete
+     * Logs: 3L--3L--2L--.....-----------2L -- Complete
      */
     override fun get(): Flux<Unit> {
         log.info("Production starting")
@@ -45,7 +45,7 @@ class LogProductionTask(val logProducer: LogProducer, val metricRepository: Metr
                 .take(numPellets.toLong())
         } else {
             Flux.interval(Duration.ofMillis(0), Duration.ofMillis(1))
-                .doOnNext({ repeat(numPellets / 1000 + if (it == 0L) numPellets % 1000 else 0) { logProducer.produce() } })
+                .doOnNext({ repeat(numPellets / 1000 + if (numPellets % 1000 > it) 1 else 0) { logProducer.produce() } })
                 .take(1000)
         }
 

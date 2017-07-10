@@ -53,7 +53,14 @@ class LogTestExecutionTest {
     @Test
     fun runTest_shouldSetTheLastExecutionTime() {
         logTest.runTest()
-        verify(metricRepository).set(Metric(LAST_EXECUTION_TIME, 0, any(Date::class.java)))
+
+        argumentCaptor<Metric<Number>>().apply {
+            verify(metricRepository, atLeastOnce()).set(capture())
+
+            assertThat(firstValue.name).isEqualTo(LAST_EXECUTION_TIME)
+            assertThat(firstValue.value).isEqualTo(0)
+            assertThat(firstValue.timestamp).isInstanceOf(Date::class.java)
+        }
     }
 
     @Test

@@ -40,5 +40,6 @@ open class LogSink @Autowired constructor(
             )
             .doOnComplete { log.info("Consumption complete") }
             .count()
+            .onErrorResume { Mono.just(-1) }
     }
 }

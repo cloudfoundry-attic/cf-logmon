@@ -9,7 +9,6 @@ import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 import java.util.*
 
 @Component
@@ -50,10 +49,6 @@ open class LogTestExecution @Autowired constructor(
                     metricRepository.findOne(LAST_EXECUTION_TIME).timestamp.toInstant(),
                     metricRepository.findDouble(LOG_WRITE_TIME_MILLIS)
                 ))
-            }
-            .onErrorResume {
-                log.error("OH NOES, ${it.message}")
-                Mono.just(0)
             }
             .block()
         log.info("LogTest complete: ${Date()}")
