@@ -1,12 +1,18 @@
 const TRANSITION_DURATION = 200; //millis
 const DOT_RADIUS_SMALL = 3.5;
 const DOT_RADIUS_LARGE = 10;
+const BACKGROUND_COLOR = '#D9F0FF';
 const CONSUMED_COLOR = '#00A79D';
 const PRODUCED_COLOR = 'black';
+const PRODUCED_CIRCLE_COLOR = '#5FB0DF';
+const CONSUMED_CIRCLE_COLOR = '#88E0F9';
 
 const margin = {top: 30, right: 20, bottom: 50, left: 70};
 const width = 1000 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
+
+const now = new Date();
+const ONE_DAY = 24 * 60 * 60 * 1000;
 
 const svg = d3.select(".panel-body")
     .insert("svg", 'table')
@@ -54,7 +60,7 @@ legend.append('rect')
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
     .style('fill', d => d.color)
-    .style('stroke', "#C5CED3");
+    .style('stroke', d => d.color);
 legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
@@ -73,7 +79,7 @@ d3.json("tests", function (error, data) {
 
     const x = d3.scaleTime()
         .range([0, width])
-        .domain(d3.extent(data, d => d.startTime));
+        .domain([now - ONE_DAY, now]);
     const y = d3.scaleLinear()
         .range([height, 0])
         .domain([0, d3.max(data, d => Math.max(d.logsProduced, d.logsConsumed))]);
@@ -81,7 +87,7 @@ d3.json("tests", function (error, data) {
     // Add the X Axis
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).ticks(24).tickFormat(d3.timeFormat("%H:%M")));
 
     // Add the Y Axis
     svg.append("g")
@@ -101,8 +107,8 @@ d3.json("tests", function (error, data) {
             .attr("d", valueline(prop));
     };
 
-    renderLine(svg, "black", "logsProduced");
-    renderLine(svg, "#00A79D", "logsConsumed");
+    renderLine(svg, PRODUCED_COLOR, "logsProduced");
+    renderLine(svg, CONSUMED_COLOR, "logsConsumed");
 
     const tooltip = d3.select(".panel-body").append("div")
         .attr("class", "tooltip bg-neutral-6")
@@ -113,7 +119,8 @@ d3.json("tests", function (error, data) {
             .data(points)
             .enter()
             .append("circle")
-            .attr("fill", dotColor)
+            .attr("stroke", dotColor)
+            .attr("fill", BACKGROUND_COLOR)
             .attr("r", DOT_RADIUS_SMALL)
             .attr("cx", d => x(d.startTime))
             .attr("cy", d => y(d[prop]))
@@ -124,22 +131,24 @@ d3.json("tests", function (error, data) {
                 tooltip.html(d3.timeFormat("%d-%b-%y")(d.startTime) + "<br/>" + d[prop])
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
-                d3.select(this)
-                    .transition()
-                    .duration(TRANSITION_DURATION)
-                    .attr('r', DOT_RADIUS_LARGE)
+                transitionToSizeAndColor(this, DOT_RADIUS_LARGE, dotColor);
             })
             .on("mouseout", function () {
                 tooltip.transition()
                     .duration(TRANSITION_DURATION)
                     .style("opacity", 0);
-                d3.select(this)
-                    .transition()
-                    .duration(TRANSITION_DURATION)
-                    .attr('r', DOT_RADIUS_SMALL)
+                transitionToSizeAndColor(this, DOT_RADIUS_SMALL, BACKGROUND_COLOR);
             });
     };
 
-    renderDots(svg, data, "black", "logsProduced");
-    renderDots(svg, data, "#00A79D", "logsConsumed");
+    renderDots(svg, data, PRODUCED_CIRCLE_COLOR, "logsProduced");
+    renderDots(svg, data, CONSUMED_CIRCLE_COLOR, "logsConsumed");
 });
+
+function transitionToSizeAndColor(item, size, color) {
+    d3.select(item)
+        .transition()
+        .duration(TRANSITION_DURATION)
+        .attr('r', size)
+        .attr('fill', color)
+}
