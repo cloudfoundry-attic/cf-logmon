@@ -40,7 +40,7 @@ svg.append("text")
 const legendRectSize = 18;
 const legendSpacing = 4;
 const legend = svg.selectAll('.legend')
-    .data([{name: "Logs Consumed", color: CONSUMED_COLOR}, {name: "Logs Produced", color: PRODUCED_COLOR}])
+    .data([{name: "Logs Produced", color: PRODUCED_COLOR}, {name: "Logs Consumed", color: CONSUMED_COLOR}])
     .enter().append('g')
     .attr('class', 'legend')
     .attr('transform', function (d, i) {
