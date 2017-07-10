@@ -44,21 +44,6 @@ class LogSinkTest {
     }
 
     @Test
-    fun consume_incrementsCounterOncePerMessage() {
-        `when`(logStreamer.logStreamForApplication(any())).thenReturn(Flux.just(
-            message("$VALID_MESSAGE_PATTERN 1"),
-            message("$VALID_MESSAGE_PATTERN 2"),
-            message("$VALID_MESSAGE_PATTERN 3"),
-            message("$VALID_MESSAGE_PATTERN 4"),
-            message("$VALID_MESSAGE_PATTERN 5")
-        ))
-
-        LogSink(appEnv, logStreamer, counterService).consume(Mono.empty()).block()
-
-        verify(counterService, times(5)).increment(LOGS_CONSUMED)
-    }
-
-    @Test
     fun consume_returnsNumberOfValidLogsConsumed() {
         `when`(logStreamer.logStreamForApplication(any())).thenReturn(Flux.just(
             message("$VALID_MESSAGE_PATTERN 1"),

@@ -42,8 +42,10 @@
                 <tr th:each="test : ${testResults}">
                     <td th:text="${test.startTime}"></td>
                     <td th:text="${test.logsProduced}"></td>
-                    <td th:text="${test.logsConsumed}"></td>
-                    <td th:text="${test.writeRateDisplay}"></td>
+                    <td th:if="${test.logsConsumed} != -1" th:text="${test.logsConsumed}"></td>
+                    <td th:if="${test.logsConsumed} == -1">--</td>
+                    <td th:if="${test.logsConsumed} != -1" th:text="${test.writeRateDisplay}"></td>
+                    <td th:if="${test.logsConsumed} == -1">--</td>
                 </tr>
                 </tbody>
             </table>

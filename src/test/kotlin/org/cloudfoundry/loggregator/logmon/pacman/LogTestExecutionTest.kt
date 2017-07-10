@@ -77,6 +77,20 @@ class LogTestExecutionTest {
     }
 
     @Test
+    fun runTest_whenTheTestSucceeds_shouldSetLOGS_CONSUMED() {
+        `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(999))
+        logTest.runTest()
+
+        argumentCaptor<Metric<Long>>().apply {
+            verify(metricRepository, atLeastOnce()).set(capture())
+
+            val consumedUpdate = allValues.find { it.name == "counter.$LOGS_CONSUMED" }!!
+
+            assertThat(consumedUpdate.value).isEqualTo(999L)
+        }
+    }
+
+    @Test
     fun runTest_whenTheTestFails_shouldSavetheResults() {
         `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(999))
         logTest.runTest()

@@ -33,7 +33,6 @@ open class LogSink @Autowired constructor(
         val application = logStreamer.fetchApplicationByName(cfApplicationEnv.name)!!
         return logStreamer.logStreamForApplication(application)
             .filter { it.message.contains(VALID_MESSAGE_PATTERN) }
-            .doOnNext { counterService.increment(LOGS_CONSUMED) }
             .takeUntilOther(
                 Mono.delay(Duration.ofMillis(postProductionWaitTime))
                     .delaySubscription(productionCompleteNotifier)

@@ -42,6 +42,7 @@ open class LogTestExecution @Autowired constructor(
         counterService.reset(LOGS_CONSUMED)
 
         Pacman(printer, logSink, metricRepository, totalPelletCount, productionDelayMillis).begin()
+            .doOnSuccess { metricRepository.setImmediate(LOGS_CONSUMED, it) }
             .doFinally {
                 logTestExecutionsRepo.save(LogTestExecutionResults(
                     metricRepository.findCounter(LOGS_PRODUCED),

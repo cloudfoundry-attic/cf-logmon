@@ -70,7 +70,8 @@ legend.append('text')
 d3.json("tests", function (error, data) {
     if (error) throw error;
 
-    // format the data
+    data = data.filter(d => d.logsConsumed >= 0);
+
     data.forEach(function (d) {
         d.startTime = new Date(d.startTime * 1000);
         d.logsProduced = +d.logsProduced;
