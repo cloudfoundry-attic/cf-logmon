@@ -64,7 +64,7 @@ d3.json("tests", function (error, data) {
 
     const x = d3.scaleTime()
         .range([0, width])
-        .domain([now - ONE_DAY, now]);
+        .domain(d3.extent(data, d => d.startTime));
     const y = d3.scaleLinear()
         .range([height, 0])
         .domain([0, d3.max(data, d => Math.max(d.logsProduced, d.logsConsumed))]);
@@ -72,13 +72,12 @@ d3.json("tests", function (error, data) {
     // Add the X Axis
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).ticks(24).tickFormat(d3.timeFormat("%-H")));
+        .call(d3.axisBottom(x));
 
     // Add the Y Axis
     svg.append("g")
         .call(d3.axisLeft(y));
 
-    // define the line
     const valueline = yProp => d3.line()
         .x(d => x(d.startTime))
         .y(d => y(d[yProp]));
