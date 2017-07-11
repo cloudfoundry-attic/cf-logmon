@@ -114,8 +114,8 @@ d3.json("tests", function (error, data) {
                     .duration(TRANSITION_DURATION)
                     .style("opacity", .9);
                 tooltip.html(d3.timeFormat("%d-%b-%y")(d.startTime) + "<br/>" + d[prop])
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px");
+                    .style("left", (d3.event.offsetX) + "px")
+                    .style("top", (d3.event.offsetY - 28) + "px");
                 transitionToSizeAndColor(this, DOT_RADIUS_LARGE, dotColor);
             })
             .on("mouseout", function () {
