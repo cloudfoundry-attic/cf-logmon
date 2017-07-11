@@ -19,16 +19,26 @@
                 <div class="row">
                     <div class="panel bg-neutral-11 box-shadow-2">
                         <div class="panel-header">
-                            <div class="panel-title">Logs Reliability</div>
+                            <div class="panel-title">Log Reliability</div>
                         </div>
                         <div class="panel-body metrics">
                             <div class="metric">
                                 <p class="metric-wrapper border-bottom">
-                                    <span class="metric-value" th:text="${todaysReliability}">85</span>
+                                    <span class="metric-value" th:text="${page.todaysReliability}"></span>
                                     <span class="metric-unit">%</span>
                                 </p>
                                 <p class="contextual-date">Today</p>
-                                <p class="date" th:text="${#calendars.format(#calendars.createNow(), 'M/dd/yy')}"></p>
+                                <p class="date" th:text="${page.today}"></p>
+                            </div>
+                            <div class="metric" th:if="${page.hasMultidayData}">
+                                <p class="metric-wrapper border-bottom">
+                                    <span class="metric-value" th:text="${page.allTimeReliability}"></span>
+                                    <span class="metric-unit">%</span>
+                                </p>
+                                <p class="contextual-date"
+                                   th:text="'Last ' + ${page.allTimeDuration.toDays()} + ' Days'">
+                                </p>
+                                <p class="date" th:text="${page.allTimeDateRange}"></p>
                             </div>
                         </div>
                     </div>

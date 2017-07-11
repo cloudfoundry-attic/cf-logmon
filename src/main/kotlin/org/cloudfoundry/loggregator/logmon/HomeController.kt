@@ -8,6 +8,11 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ResponseBody
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.*
 
 @Controller
 class HomeController @Autowired constructor(
@@ -17,8 +22,8 @@ class HomeController @Autowired constructor(
     @GetMapping(path = arrayOf("/"), produces = arrayOf("text/html"))
     fun index(model: Model): String {
         val results = logTestExecutionsRepo.findAll()
-        model.addAttribute("testResults", results)
-        model.addAttribute("todaysReliability", statistics.reliability(results))
+        val presenter = HomePagePresenter(results, statistics)
+        model.addAttribute("page", presenter)
         return "index"
     }
 
@@ -26,5 +31,28 @@ class HomeController @Autowired constructor(
     @ResponseBody
     fun testIndexJson(): List<LogTestExecutionResults> {
         return logTestExecutionsRepo.findAll()
+    }
+
+    private class HomePagePresenter(val results: List<LogTestExecutionResults>, statistics: StatisticsPresenter) {
+        val todaysReliability = statistics.reliability(
+            results.filter { it.startTime > LocalDateTime.now().minusDays(1L).toInstant(ZoneOffset.UTC) }
+        )
+
+        val allTimeReliability = statistics.reliability(results)
+        val allTimeDuration = statistics.runTime(results)
+        val hasMultidayData = !allTimeDuration.isZero
+        val allTimeDateRange
+            get() =
+            if (!allTimeDuration.isZero) {
+                listOf(pp(results.first().startTime), pp(results.last().startTime)).joinToString(" - ")
+            } else {
+                ""
+            }
+
+        val today = pp(Instant.now())
+
+        private fun pp(time: Instant): String {
+            return SimpleDateFormat("M/d/YY").format(Date(time.toEpochMilli()))
+        }
     }
 }
