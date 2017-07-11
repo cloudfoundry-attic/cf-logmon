@@ -54,7 +54,7 @@ class StatisticsUiTest {
     fun setUp() {
         `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
             LogTestExecutionResults(10_000, 9_500, now, 2000.0),
-            LogTestExecutionResults(10_000, 8_700, now, 2000.0),
+            LogTestExecutionResults(10_000, 8_777, now, 2000.0),
             LogTestExecutionResults(10_000, 5_000, now.minusSeconds(3600*24 * 2), 2000.0)
         ))
     }
@@ -62,14 +62,14 @@ class StatisticsUiTest {
     @Test
     fun theDashboard_displaysTodaysReliabilityRate() {
         val pageContent = page().xpath("//body").text
-        assertThat(pageContent).contains("91 %")
+        assertThat(pageContent).contains("91.39 %")
         assertThat(pageContent).contains("Today")
     }
 
     @Test
     fun theDashboard_displaysAllTimeReliabilityRate() {
         val pageContent = page().xpath("//body").text
-        assertThat(pageContent).contains("77 %")
+        assertThat(pageContent).contains("77.59 %")
         assertThat(pageContent).contains("Last 2 Days")
     }
 

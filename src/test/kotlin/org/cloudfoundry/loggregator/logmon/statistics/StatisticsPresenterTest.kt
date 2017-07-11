@@ -20,7 +20,7 @@ class StatisticsPresenterTest {
             LogTestExecutionResults(10, 6, Instant.now(), 0.0)
         )
 
-        assertThat(statistics.reliability(results)).isEqualTo(75)
+        assertThat(statistics.reliability(results)).isEqualTo("75.00")
     }
 
     @Test
@@ -30,7 +30,7 @@ class StatisticsPresenterTest {
             LogTestExecutionResults(10, 8, Instant.now(), 0.0)
         )
 
-        assertThat(statistics.reliability(results)).isEqualTo(80)
+        assertThat(statistics.reliability(results)).isEqualTo("80.00")
     }
 
     @Test
