@@ -1,0 +1,76 @@
+body {
+    font-family: 'Lato', sans-serif;
+}
+
+.header {
+    background-color: #EFF0F0;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+}
+
+.panel {
+    margin-top: 24px;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.metric-wrapper {
+    line-height: 1;
+    margin: 0;
+    padding-bottom: 16px;
+    color: #136C92;
+}
+
+.metric-value {
+    font-size: 104px;
+}
+
+.metric-unit {
+    font-size: 78px;
+}
+
+.metrics {
+    display: flex;
+    justify-content: space-around;
+}
+
+.metric {
+    margin: 24px 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    border-right: 3px solid rgba(0, 0, 0, 0.1);
+}
+
+.metric:last-child {
+    border-right: none;
+}
+
+.contextual-date {
+    font-weight: 300;
+    color: #136C92;
+    font-size: 24px;
+    margin-top: 16px;
+    padding: 16px;
+}
+
+.graph {
+    min-height: 500px;
+}
+
+.graph-panel .panel-header {
+    border: none;
+}

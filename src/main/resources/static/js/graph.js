@@ -7,41 +7,25 @@ const PRODUCED_COLOR = 'black';
 const PRODUCED_CIRCLE_COLOR = '#5FB0DF';
 const CONSUMED_CIRCLE_COLOR = '#88E0F9';
 
-const margin = {top: 30, right: 20, bottom: 50, left: 70};
-const width = 1000 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
-
 const now = new Date();
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
-const svg = d3.select(".panel-body")
+const margin = {top: 30, right: 20, bottom: 50, left: 70};
+const width = document.querySelector('.panel-body.graph').clientWidth - margin.left - margin.right;
+const height = document.querySelector('.panel-body.graph').clientHeight - margin.top - margin.bottom;
+
+const svg = d3.select(".panel-body.graph")
     .insert("svg", 'table')
-    .attr("class", 'bg-accent-6')
     .attr("style", 'width: 100%')
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ") scale(0.975)");
 
-svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", -10)
-    .attr("text-anchor", "middle")
-    .style("font-size", "16px")
-    .style("text-decoration", "underline")
-    .text("Test Log Chart");
+const renderText = (text, root, x, y) => root.append('text').attr('x', x).attr('y', y).style('text-anchor', 'middle').text(text);
 
-svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", height + margin.top + 10)
-    .style("text-anchor", "middle")
-    .text("Time");
-svg.append("text")
-    .attr("x", -height / 2)
-    .attr("y", -margin.left / 2 - 10)
-    .style("text-anchor", "middle")
-    .style("transform", "rotate(-90deg)")
-    .text("Log Numbers");
+renderText('Time', svg, width / 2, height + margin.top + 10);
+renderText('Number of Logs', svg, -height / 2, -margin.left / 2 - 20).style('transform', 'rotate(-90deg)');
 
 const legendRectSize = 18;
 const legendSpacing = 4;
@@ -50,20 +34,20 @@ const legend = svg.selectAll('.legend')
     .enter().append('g')
     .attr('class', 'legend')
     .attr('transform', function (d, i) {
-        const height = legendRectSize + legendSpacing;
-        const offset = height;
-        const x = width - margin.right - (-2 * legendRectSize);
-        const y = margin.top + (i * height - offset);
-        return 'translate(' + x + ',' + y + ')';
+        const x = -margin.left + i * 104;
+        const y = -margin.top;
+        return `translate(${x},${y})`;
     });
 legend.append('rect')
+    .attr('transform', 'translate(0, 8)')
     .attr('width', legendRectSize)
-    .attr('height', legendRectSize)
+    .attr('height', 2)
     .style('fill', d => d.color)
     .style('stroke', d => d.color);
 legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
+    .style('font-size', '12px')
     .text(d => d.name);
 
 // Get the data
@@ -88,7 +72,7 @@ d3.json("tests", function (error, data) {
     // Add the X Axis
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).ticks(24).tickFormat(d3.timeFormat("%H:%M")));
+        .call(d3.axisBottom(x).ticks(24).tickFormat(d3.timeFormat("%-H")));
 
     // Add the Y Axis
     svg.append("g")
@@ -111,7 +95,7 @@ d3.json("tests", function (error, data) {
     renderLine(svg, PRODUCED_COLOR, "logsProduced");
     renderLine(svg, CONSUMED_COLOR, "logsConsumed");
 
-    const tooltip = d3.select(".panel-body").append("div")
+    const tooltip = d3.select(".panel-body.graph").append("div")
         .attr("class", "tooltip bg-neutral-6")
         .style("opacity", 0);
 

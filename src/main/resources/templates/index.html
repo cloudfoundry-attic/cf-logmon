@@ -5,54 +5,46 @@
     <title>Test Executions</title>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.9.1/d3.js"
             integrity="sha256-58J0lufc42SnFtW9x/nNt8JDtRQsjbtk1gzjPI4Fypw=" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet" />
     <link rel="stylesheet" href="/css/pui.css"/>
-
-    <style>
-        .tooltip {
-            position: absolute;
-            text-align: center;
-            width: 60px;
-            height: 28px;
-            padding: 2px;
-            font: 12px sans-serif;
-            border: 0px;
-            border-radius: 8px;
-            pointer-events: none;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/app.css"/>
 </head>
 <body>
-    <div class="panel bg-neutral-11">
-        <div class="panel-header">
-            <div class="panel-title">Logmon Dashboard</div>
-        </div>
-        <div class="panel-body">
-
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Execution Time</th>
-                    <th>Logs Produced</th>
-                    <th>Logs Consumed</th>
-                    <th>Write Rate</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr th:each="test : ${testResults}">
-                    <td th:text="${test.startTime}"></td>
-                    <td th:text="${test.logsProduced}"></td>
-                    <td th:if="${test.logsConsumed} != -1" th:text="${test.logsConsumed}"></td>
-                    <td th:if="${test.logsConsumed} == -1">--</td>
-                    <td th:if="${test.logsConsumed} != -1" th:text="${test.writeRateDisplay}"></td>
-                    <td th:if="${test.logsConsumed} == -1">--</td>
-                </tr>
-                </tbody>
-            </table>
-
+    <header class="header">
+        <h1>Logmon Dashboard</h1>
+    </header>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-16">
+                <div class="row">
+                    <div class="panel bg-neutral-11 box-shadow-2">
+                        <div class="panel-header">
+                            <div class="panel-title">Logs Reliability</div>
+                        </div>
+                        <div class="panel-body metrics">
+                            <div class="metric">
+                                <p class="metric-wrapper border-bottom">
+                                    <span class="metric-value" th:text="${todaysReliability}">85</span>
+                                    <span class="metric-unit">%</span>
+                                </p>
+                                <p class="contextual-date">Today</p>
+                                <p class="date" th:text="${#calendars.format(#calendars.createNow(), 'M/dd/yy')}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="graph-panel panel bg-neutral-11 box-shadow-2">
+                        <div class="panel-header">
+                            <div class="panel-title">Test Log Chart</div>
+                        </div>
+                        <div class="panel-body graph">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
     <script type="application/javascript" src="/js/graph.js"></script>
 </body>
 </html>
