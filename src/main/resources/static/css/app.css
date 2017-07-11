@@ -74,3 +74,15 @@ body {
 .graph-panel .panel-header {
     border: none;
 }
+
+.graph-panel .panel-title {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.graph-panel .panel-title a {
+    text-transform: uppercase;
+    margin-right: 8px;
+    font-size: 12px;
+}

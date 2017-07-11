@@ -6,10 +6,15 @@ import java.time.Duration
 @Component
 class StatisticsPresenter {
     fun reliability(results: List<LogTestExecutionResults>): String {
-        val rate = results.filter { it.logsConsumed >= 0 }
-            .map { it.logsConsumed / it.logsProduced.toDouble() }
-            .average()
-        return String.format("%.2f", 100 * rate)
+        val validResults = results.filter { it.logsConsumed >= 0 }
+        if (validResults.count() == 0) {
+            return "0.00"
+        } else {
+            val rate = validResults
+                .map { it.logsConsumed }
+                .sum() / (validResults.first().logsProduced * validResults.count()).toFloat()
+            return String.format("%.2f", 100 * rate)
+        }
     }
 
     fun runTime(results: List<LogTestExecutionResults>): Duration {

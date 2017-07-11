@@ -27,9 +27,15 @@ class HomeController @Autowired constructor(
         return "index"
     }
 
+    @GetMapping(path = arrayOf("/stats"), produces = arrayOf("text/html"))
+    fun statsIndex(model: Model): String {
+        model.addAttribute("testResults", logTestExecutionsRepo.findAll())
+        return "stats/index"
+    }
+
     @GetMapping(path = arrayOf("/tests"), produces = arrayOf("application/json"))
     @ResponseBody
-    fun testIndexJson(): List<LogTestExecutionResults> {
+    fun testIndex(): List<LogTestExecutionResults> {
         return logTestExecutionsRepo.findAll()
     }
 

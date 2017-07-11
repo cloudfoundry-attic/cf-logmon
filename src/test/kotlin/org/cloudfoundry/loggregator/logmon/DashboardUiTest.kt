@@ -26,14 +26,13 @@ import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.net.URI
 import java.time.Instant
-import java.util.regex.Pattern
 
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class StatisticsUiTest {
+class DashboardUiTest {
     @MockBean
     private lateinit var logTestExecution: LogTestExecution
 
@@ -54,35 +53,43 @@ class StatisticsUiTest {
     @Before
     fun setUp() {
         `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
-            LogTestExecutionResults(10_000, 9_500, now, 2000.0)
+            LogTestExecutionResults(10_000, 9_500, now, 2000.0),
+            LogTestExecutionResults(10_000, 8_777, now, 2000.0),
+            LogTestExecutionResults(10_000, 5_000, now.minusSeconds(3600 * 24 * 2), 2000.0)
         ))
     }
 
     @Test
-    fun theDashboard_hasALinkToTheListOfLogTestExecutions() {
-        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(LogTestExecutionResults(10_000, 9_500, Instant.now(), 2_000.0)))
-        val rows = page().xpath("//table/tbody/tr")
-        assertThat(rows.length).isEqualTo(1)
-            .withFailMessage("Expected page to have <%s> rows, had <%s>.", 1, rows.length)
-
-        val cells = page().xpath("//table/tbody/tr/td")
-        assertThat(cells.length).isEqualTo(4)
-            .withFailMessage("Expected page to have <%s> cells, had <%s>.", 4, cells.length)
-
-        val ISO8601 = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")
-        assertThat(cells.item(0).textContent).matches(ISO8601)
-        assertThat(cells.item(1).textContent).isEqualTo("10000")
-        assertThat(cells.item(2).textContent).isEqualTo("9500")
-        assertThat(cells.item(3).text).isEqualTo("10000 logs / 2000.00 ms = 5.00 logs/ms")
+    fun theDashboard_displaysTodaysReliabilityRate() {
+        val pageContent = page().xpath("//body").text
+        assertThat(pageContent).contains("91.39 %")
+        assertThat(pageContent).contains("Today")
     }
 
-    private fun page(path: String = "/stats"): Document {
+    @Test
+    fun theDashboard_displaysAllTimeReliabilityRate() {
+        val pageContent = page().xpath("//body").text
+        assertThat(pageContent).contains("77.59 %")
+        assertThat(pageContent).contains("Last 2 Days")
+    }
+
+    private fun page(path: String = "/"): Document {
         val request = RequestEntity.get(URI(baseUrl + path))
             .accept(MediaType.TEXT_HTML)
             .build()
         return http.exchange(request, String::class.java).body.getHtml()
     }
 
+    private val Document.text: String
+        get() = xpath("//body").item(0).textContent
+
+    private val NodeList.text: String
+        get() = item(0).text
+
     private val Node.text: String
         get() = textContent.trim().replace(Regex("\\s+"), " ")
+
+    private val NodeList.href: String
+        get() = item(0).attributes.getNamedItem("href").textContent
 }
+
