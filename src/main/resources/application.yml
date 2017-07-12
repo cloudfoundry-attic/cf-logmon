@@ -14,6 +14,9 @@ cf:
   password: unknown
 
 logmon:
+  auth:
+    username: admin
+    password: password
   consumption:
     post-production-wait-time-millis: 10000
   production:

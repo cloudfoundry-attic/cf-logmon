@@ -5,4 +5,4 @@ deployment:
   review:
     branch: master
     commands:
-      - PATCH_NUM=$CIRCLE_BUILD_NUM ./bin/deploy.sh
+      - PATCH_NUM=$CIRCLE_BUILD_NUM ./bin/dev-deploy.sh
