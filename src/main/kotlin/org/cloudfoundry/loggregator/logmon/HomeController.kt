@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.Duration
 import java.util.*
 
 @Controller
@@ -46,10 +47,10 @@ class HomeController @Autowired constructor(
 
         val allTimeReliability = statistics.reliability(results)
         val allTimeDuration = statistics.runTime(results)
-        val hasMultidayData = !allTimeDuration.isZero
+        val hasMultidayData = allTimeDuration >= Duration.ofDays(1)
         val allTimeDateRange
             get() =
-            if (!allTimeDuration.isZero) {
+            if (hasMultidayData) {
                 listOf(pp(results.first().startTime), pp(results.last().startTime)).joinToString(" - ")
             } else {
                 ""
