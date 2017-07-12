@@ -15,4 +15,12 @@ open class LogTestExecutionsRepo {
             allResults.add(results)
         }
     }
+
+    open fun deleteFirst(n: Int = 1) {
+        synchronized(this) {
+            repeat(n) {
+                allResults.removeAt(0)
+            }
+        }
+    }
 }
