@@ -2,6 +2,7 @@ package org.cloudfoundry.loggregator.logmon.pacman
 
 import com.nhaarman.mockito_kotlin.argumentCaptor
 import org.assertj.core.api.Assertions.assertThat
+import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyRepo
 import org.cloudfoundry.loggregator.logmon.statistics.*
 import org.cloudfoundry.loggregator.logmon.support.any
 import org.junit.Before
@@ -33,6 +34,9 @@ class LogTestExecutionTest {
 
     @Mock
     private lateinit var logTestExecutionsRepo: LogTestExecutionsRepo
+
+    @Mock
+    private lateinit var anomalyRepo: AnomalyRepo
 
     @InjectMocks
     private lateinit var logTest: LogTestExecution
