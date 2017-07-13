@@ -67,7 +67,7 @@ d3.json("tests", function (error, data) {
         .domain(d3.extent(data, d => d.startTime));
     const y = d3.scaleLinear()
         .range([height, 0])
-        .domain([0, d3.max(data, d => Math.max(d.logsProduced, d.logsConsumed))]);
+        .domain([0, d3.max(data, d => Math.max(d.logsProduced, d.logsConsumed)) * 1.2]);
 
     // Add the X Axis
     svg.append("g")
