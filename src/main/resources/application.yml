@@ -9,15 +9,13 @@ vcap:
     cf-api: http://example.com
     space-id: unknown
 
-cf:
-  username: nope@nope.com
-  password: unknown
-
 logmon:
   auth:
     username: admin
     password: password
   consumption:
+    username: nope@nope.com
+    password: unknown
     post-production-wait-time-millis: 10000
   production:
     app-profile: normal

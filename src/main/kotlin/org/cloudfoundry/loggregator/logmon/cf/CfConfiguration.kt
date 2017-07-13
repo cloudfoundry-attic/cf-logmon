@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration
 open class CfConfiguration {
 
     @Configuration
-    @ConfigurationProperties("cf")
+    @ConfigurationProperties("logmon.consumption")
     open class CfLoginInfo {
         lateinit var username: String
         lateinit var password: String
