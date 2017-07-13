@@ -7,7 +7,23 @@ body {
     height: 56px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 16px;
+}
+
+.material-icons {
+    color: #15786E;
+    font-size: 36px;
+}
+
+.info-link {
+    display: flex;
+    align-items: center;
+    color: inherit;
+}
+
+.info-link:hover {
+    color: inherit;
 }
 
 .panel {
