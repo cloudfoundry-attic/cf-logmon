@@ -1,6 +1,8 @@
 package org.cloudfoundry.loggregator.logmon
 
 import org.assertj.core.api.Assertions.assertThat
+import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyRepo
+import org.cloudfoundry.loggregator.logmon.anomalies.ApplicationAnomaly
 import org.cloudfoundry.loggregator.logmon.pacman.LogTestExecution
 import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionResults
 import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionsRepo
@@ -32,6 +34,9 @@ class DashboardUiTest {
     @MockBean
     private lateinit var logTestExecutionsRepo: LogTestExecutionsRepo
 
+    @MockBean
+    private lateinit var anomalyRepo: AnomalyRepo
+
     @LocalServerPort
     private var port: Int = -1
 
@@ -50,6 +55,10 @@ class DashboardUiTest {
             LogTestExecutionResults(10_000, 8_777, now, 2000.0),
             LogTestExecutionResults(10_000, 5_000, now.minusSeconds(3600 * 24 * 2), 2000.0)
         ))
+
+        `when`(anomalyRepo.findAll()).thenReturn(listOf(
+            ApplicationAnomaly("Deploy Successful, collecting data", Instant.now())
+        ))
     }
 
     @Test
@@ -65,5 +74,10 @@ class DashboardUiTest {
         assertThat(pageContent).contains("77.59 %")
         assertThat(pageContent).contains("Last 2 Days")
     }
-}
 
+    @Test
+    fun theDashboard_displaysAnAnamolyForApplicationBoot() {
+        val pageContent = page(http, baseUrl).text
+        assertThat(pageContent).contains("Deploy Successful, collecting data")
+    }
+}

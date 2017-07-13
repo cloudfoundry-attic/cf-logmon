@@ -1,5 +1,7 @@
 package org.cloudfoundry.loggregator.logmon
 
+import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyRepo
+import org.cloudfoundry.loggregator.logmon.anomalies.ApplicationAnomaly
 import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionResults
 import org.cloudfoundry.loggregator.logmon.statistics.LogTestExecutionsRepo
 import org.cloudfoundry.loggregator.logmon.statistics.StatisticsPresenter
@@ -18,12 +20,16 @@ import java.util.*
 @Controller
 class HomeController @Autowired constructor(
     private val logTestExecutionsRepo: LogTestExecutionsRepo,
+    private val anomalyRepo: AnomalyRepo,
     private val statistics: StatisticsPresenter
 ) {
     @GetMapping(path = arrayOf("/"), produces = arrayOf("text/html"))
     fun index(model: Model): String {
-        val results = logTestExecutionsRepo.findAll()
-        val presenter = HomePagePresenter(results, statistics)
+        val presenter = HomePagePresenter(
+            logTestExecutionsRepo.findAll(),
+            anomalyRepo.findAll(),
+            statistics
+        )
         model.addAttribute("page", presenter)
         return "index"
     }
@@ -40,7 +46,7 @@ class HomeController @Autowired constructor(
         return logTestExecutionsRepo.findAll()
     }
 
-    private class HomePagePresenter(val results: List<LogTestExecutionResults>, statistics: StatisticsPresenter) {
+    private class HomePagePresenter(val results: List<LogTestExecutionResults>, val anomalies: List<ApplicationAnomaly>, statistics: StatisticsPresenter) {
         val todaysReliability = statistics.reliability(
             results.filter { it.startTime > LocalDateTime.now().minusDays(1L).toInstant(ZoneOffset.UTC) }
         )

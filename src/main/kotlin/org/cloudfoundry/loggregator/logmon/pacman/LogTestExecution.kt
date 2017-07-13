@@ -1,5 +1,6 @@
 package org.cloudfoundry.loggregator.logmon.pacman
 
+import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyRepo
 import org.cloudfoundry.loggregator.logmon.statistics.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +11,7 @@ import org.springframework.boot.actuate.metrics.repository.MetricRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.*
+import javax.annotation.PostConstruct
 
 @Component
 open class LogTestExecution @Autowired constructor(
@@ -17,10 +19,16 @@ open class LogTestExecution @Autowired constructor(
     private val logSink: LogSink,
     private val counterService: CounterService,
     private val metricRepository: MetricRepository,
-    private val logTestExecutionsRepo: LogTestExecutionsRepo
+    private val logTestExecutionsRepo: LogTestExecutionsRepo,
+    private val anomalyRepo: AnomalyRepo
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
+    }
+
+    @PostConstruct
+    protected open fun initialize() {
+        anomalyRepo.save("Deploy successful, collecting data")
     }
 
     @Value("\${logmon.production.app-profile}")
