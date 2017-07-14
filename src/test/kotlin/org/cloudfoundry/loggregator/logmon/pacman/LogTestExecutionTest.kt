@@ -71,7 +71,15 @@ class LogTestExecutionTest {
     fun runTest_shouldAddTheExecutionResultsToTheRepoAndRecalculatesTheState() {
         logTest.runTest()
 
-        verify(stateMachine).recalculate()
+        tryWithTimeout(5000) {
+            try {
+                verify(stateMachine).recalculate()
+                true
+            } catch(e: Exception) {
+                false
+            }
+        }
+
         argumentCaptor<LogTestExecutionResults>().apply {
             verify(logTestExecutionsRepo).save(capture())
 
@@ -92,6 +100,15 @@ class LogTestExecutionTest {
             val consumedUpdate = allValues.find { it.name == "counter.$LOGS_CONSUMED" }!!
 
             assertThat(consumedUpdate.value).isEqualTo(999L)
+        }
+    }
+
+    private fun tryWithTimeout(timeToWait: Int, waitDoneCheck: () -> Boolean) {
+        var tries = 0
+        while (!waitDoneCheck.invoke()) {
+            if (tries > timeToWait / 100) throw Exception("Thing never happened")
+            tries++
+            Thread.sleep(100)
         }
     }
 }

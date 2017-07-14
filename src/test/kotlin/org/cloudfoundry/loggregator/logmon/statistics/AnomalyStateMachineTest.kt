@@ -30,10 +30,10 @@ class AnomalyStateMachineTest {
         `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
             LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
             LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0)
+            LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 1000, Instant.now(), 0.0)
         ))
 
         anomalyStateMachine.recalculate()
@@ -93,6 +93,26 @@ class AnomalyStateMachineTest {
             "The average reliability rate for the last 5 tests is 89%. " +
                 "Click \"Review Data\" in the chart to see more info on the logs.",
             AnomalyLevel.RED
+        )
+    }
+
+    @Test
+    fun recalculate_whenTheLastNTestsFallWithinTheYellowThreshold_createsAYellowAnomaly() {
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
+            LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 950, Instant.now(), 0.0)
+        ))
+
+        anomalyStateMachine.recalculate()
+        anomalyStateMachine.recalculate()
+
+        verify(anomalyRepo, times(1)).save(
+            "Reliability Rate 95%",
+            AnomalyLevel.YELLOW
         )
     }
 }

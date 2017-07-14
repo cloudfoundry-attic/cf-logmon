@@ -16,11 +16,6 @@ open class AnomalyStateMachine @Autowired constructor(
     @PostConstruct
     protected open fun initialize() {
         anomalyRepo.save("Deploy successful, collecting data", AnomalyLevel.GREEN)
-        anomalyRepo.save("Deploy successful, collecting data", AnomalyLevel.GREEN)
-        anomalyRepo.save("Deploy successful, collecting data", AnomalyLevel.YELLOW)
-        anomalyRepo.save("Deploy successful, collecting data", AnomalyLevel.YELLOW)
-        anomalyRepo.save("Deploy successful, collecting data", AnomalyLevel.RED)
-        anomalyRepo.save("Deploy successful, collecting data", AnomalyLevel.RED)
     }
 
     @Value("\${logmon.anomalies.sample-size}")
@@ -32,7 +27,10 @@ open class AnomalyStateMachine @Autowired constructor(
         val lastN = logTestExecutionsRepo.findAll().takeLast(WINDOW_WIDTH)
         if (lastN.size < WINDOW_WIDTH) return
         val reliability = statistics.reliability(lastN)
-        if (reliability < 0.9 && state != AnomalyLevel.RED) {
+        if ((0.9..0.99).contains(reliability) && state != AnomalyLevel.YELLOW) {
+            state = AnomalyLevel.YELLOW
+            anomalyRepo.save(state.message(reliability * 100), state)
+        } else if (reliability < 0.9 && state != AnomalyLevel.RED) {
             state = AnomalyLevel.RED
             anomalyRepo.save(state.message(reliability * 100), state)
         }
