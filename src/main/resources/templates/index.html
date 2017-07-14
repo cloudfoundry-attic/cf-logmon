@@ -12,86 +12,83 @@
 </head>
 <body>
     <header class="header">
-        <h1>Logmon Dashboard</h1>
+        <div>Logmon Dashboard</div>
         <a class="info-link" href="https://github.com/cloudfoundry/loggregator" target="_blank">
             <i class="material-icons">info_outline</i>
             Info
         </a>
     </header>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-16">
-                <div class="row">
-                    <div class="panel bg-neutral-11 box-shadow-2">
-                        <div class="panel-header">
-                            <div class="panel-title">Log Reliability</div>
-                        </div>
-                        <div class="panel-body metrics">
-                            <div class="metric">
-                                <p class="metric-wrapper border-bottom">
-                                    <span class="metric-value" th:text="${page.todaysReliability}"></span>
-                                    <span class="metric-unit">%</span>
-                                </p>
-                                <p class="contextual-date">Today</p>
-                                <p class="date" th:text="${page.today}"></p>
-                            </div>
-                            <div class="metric" th:if="${page.hasMultidayData}">
-                                <p class="metric-wrapper border-bottom">
-                                    <span class="metric-value" th:text="${page.allTimeReliability}"></span>
-                                    <span class="metric-unit">%</span>
-                                </p>
-                                <p class="contextual-date"
-                                   th:text="'Last ' + ${page.allTimeDuration.toDays()} + ' Days'">
-                                </p>
-                                <p class="date" th:text="${page.allTimeDateRange}"></p>
-                            </div>
-                        </div>
-                    </div>
+    <div class="content-wrapper">
+        <div class="left-side">
+
+            <div class="panel bg-neutral-11">
+                <div class="panel-header">
+                    <div class="panel-title">Log Reliability</div>
                 </div>
-                <div class="row">
-                    <div class="graph-panel panel bg-neutral-11 box-shadow-2">
-                        <div class="panel-header">
-                            <div class="panel-title">
-                                <span>Test Log Chart</span>
-                                <a class="link-text" href="stats">
-                                    Review Data
-                                </a>
-                            </div>
-                        </div>
-                        <div class="panel-body graph">
-                        </div>
+                <div class="panel-body metrics">
+                    <div class="metric">
+                        <p class="metric-wrapper">
+                            <span class="metric-value" th:text="${page.todaysReliability}"></span>
+                            <span class="metric-unit">&nbsp;%</span>
+                        </p>
+                        <p class="contextual-date">Today</p>
+                        <p class="date" th:text="${page.today}"></p>
+                    </div>
+                    <div class="metric" th:if="${page.hasMultidayData}">
+                        <p class="metric-wrapper">
+                            <span class="metric-value" th:text="${page.allTimeReliability}"></span>
+                            <span class="metric-unit">&nbsp;%</span>
+                        </p>
+                        <p class="contextual-date"
+                           th:text="'Last ' + ${page.allTimeDuration.toDays()} + ' Days'">
+                        </p>
+                        <p class="date" th:text="${page.allTimeDateRange}"></p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
-                <div class="panel bg-neutral-11 box-shadow-2">
-                    <div class="panel-header">
-                        <div class="panel-title">Anomaly Journal</div>
+            <div class="graph-panel panel bg-neutral-11">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span>Test Log Chart</span>
+                        <a class="link-text" href="stats">
+                            Review Data
+                        </a>
                     </div>
-                    <div class="panel-body">
-                        <table class="table table-no-borders">
-                            <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th colspan="3">Event Summary</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="anomaly : ${page.anomalies}">
-                                <td><time th:text="${anomaly.timestamp}"></time></td>
-                                <td colspan="3" th:text="${anomaly.description}"></td>
-                                <td class="txt-r">
-                                    <th:block th:switch="${anomaly.level.toString()}">
-                                        <i th:case="'GREEN'" class="material-icons txt-m anomaly-green">error</i>
-                                        <i th:case="'YELLOW'" class="material-icons txt-m anomaly-yellow">warning</i>
-                                        <i th:case="'RED'" class="material-icons txt-m anomaly-red">warning</i>
-                                    </th:block>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+                <div class="panel-body graph">
+                </div>
+            </div>
+        </div>
+        <div class="right-side">
+            <div class="panel anomaly-journal-panel bg-neutral-11">
+                <div class="panel-header">
+                    <div class="panel-title">Anomaly Journal</div>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-no-borders">
+                        <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th colspan="3">Event Summary</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="anomaly : ${page.anomalies}">
+                            <td>
+                                <time th:text="${anomaly.timestamp}"></time>
+                            </td>
+                            <td colspan="3" th:text="${anomaly.description}"></td>
+                            <td class="txt-r">
+                                <th:block th:switch="${anomaly.level.toString()}">
+                                    <i th:case="'GREEN'" class="material-icons txt-m anomaly-green">error</i>
+                                    <i th:case="'YELLOW'" class="material-icons txt-m anomaly-yellow">warning</i>
+                                    <i th:case="'RED'" class="material-icons txt-m anomaly-red">warning</i>
+                                </th:block>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

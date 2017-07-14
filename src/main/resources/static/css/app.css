@@ -2,10 +2,31 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
-@media (min-width: 1200px) {
-    .container {
-        width: 90%;
-    }
+.content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+.left-side, .right-side {
+    display: flex;
+}
+
+.left-side {
+    flex: 1 1 50%;
+    flex-flow: column wrap;
+}
+
+.right-side {
+    flex: 1;
+    margin-left: 24px;
+    min-width: 450px;
+}
+
+[class*="col-md-*"] {
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .panel-title > a,
@@ -13,7 +34,19 @@ body {
 .panel-title > .small,
 .panel-title > small > a,
 .panel-title > .small > a {
-    color: #1B78B3;
+    color: #3E98CA;
+}
+
+.panel {
+    -webkit-box-shadow: 2px 2px 4px 0px rgba(182,182,182,1);
+    -moz-box-shadow: 2px 2px 4px 0px rgba(182,182,182,1);
+    box-shadow: 2px 2px 4px 0px rgba(182,182,182,1);
+    border: 1px solid rgba(182,182,182,0.25);
+    border-radius: 5px;
+}
+
+.anomaly-journal-panel .panel-body {
+    padding: 0 20px;
 }
 
 .header {
@@ -22,7 +55,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 0 16px;
+    border-top: 64px solid teal;
+    box-sizing: content-box;
 }
 
 .material-icons {
@@ -44,6 +79,21 @@ body {
     margin-top: 24px;
 }
 
+.panel-header {
+    position: relative;
+    padding-left: 20px;
+    border: none;
+}
+
+.panel-header:after {
+    position: absolute;
+    content: ' ';
+    width: calc(100% - 40px);
+    border-bottom: 2px solid rgba(0, 0, 0, .1);
+    bottom: 0;
+    left: 20px;
+}
+
 .tooltip {
     position: absolute;
     text-align: center;
@@ -61,6 +111,16 @@ body {
     margin: 0;
     padding-bottom: 16px;
     color: #136C92;
+    position: relative;
+}
+
+.metric-wrapper:after {
+    border-bottom: 2px solid #899CAC;
+    content: ' ';
+    position: absolute;
+    bottom: 0;
+    width: 74%;
+    left: 13%;
 }
 
 .metric-value {
@@ -94,15 +154,14 @@ body {
     font-weight: 300;
     color: #136C92;
     font-size: 24px;
-    margin-top: 16px;
     padding: 16px;
 }
 
 .graph {
-    min-height: 500px;
+    min-height: 400px;
 }
 
-.graph-panel .panel-header {
+.graph-panel .panel-header:after {
     border: none;
 }
 
@@ -132,4 +191,8 @@ tbody tr:nth-child(odd) {
 
 .anomaly-yellow {
     color: #B7AF54;
+}
+
+time {
+    white-space: nowrap;
 }
