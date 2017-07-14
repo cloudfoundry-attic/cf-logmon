@@ -29,7 +29,7 @@
                     <div class="metric">
                         <p class="metric-wrapper">
                             <span class="metric-value" th:text="${page.todaysReliability}"></span>
-                            <span class="metric-unit">&nbsp;%</span>
+                            <span class="metric-unit"> %</span>
                         </p>
                         <p class="contextual-date">Today</p>
                         <p class="date" th:text="${page.today}"></p>
@@ -37,7 +37,7 @@
                     <div class="metric" th:if="${page.hasMultidayData}">
                         <p class="metric-wrapper">
                             <span class="metric-value" th:text="${page.allTimeReliability}"></span>
-                            <span class="metric-unit">&nbsp;%</span>
+                            <span class="metric-unit"> %</span>
                         </p>
                         <p class="contextual-date"
                            th:text="'Last ' + ${page.allTimeDuration.toDays()} + ' Days'">
