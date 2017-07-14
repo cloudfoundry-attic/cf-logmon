@@ -11,7 +11,7 @@ open class AnomalyRepo {
         return anomalies
     }
 
-    open fun save(description: String) {
-        anomalies.add(ApplicationAnomaly(description, Instant.now()))
+    open fun save(description: String, level: AnomalyLevel) {
+        anomalies.add(ApplicationAnomaly(description, Instant.now(), level))
     }
 }

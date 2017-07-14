@@ -1,6 +1,7 @@
 package org.cloudfoundry.loggregator.logmon
 
 import org.assertj.core.api.Assertions.assertThat
+import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyLevel
 import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyRepo
 import org.cloudfoundry.loggregator.logmon.anomalies.ApplicationAnomaly
 import org.cloudfoundry.loggregator.logmon.pacman.LogTestExecution
@@ -57,7 +58,7 @@ class DashboardUiTest {
         ))
 
         `when`(anomalyRepo.findAll()).thenReturn(listOf(
-            ApplicationAnomaly("Deploy Successful, collecting data", Instant.now())
+            ApplicationAnomaly("Deploy Successful, collecting data", Instant.now(), AnomalyLevel.GREEN)
         ))
     }
 

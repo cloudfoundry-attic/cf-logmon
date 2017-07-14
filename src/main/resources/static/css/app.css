@@ -68,7 +68,8 @@ body {
 }
 
 .metric-unit {
-    font-size: 78px;
+    font-size: 42px;
+    font-weight: 300;
 }
 
 .metrics {
@@ -118,5 +119,17 @@ body {
 }
 
 tbody tr:nth-child(odd) {
-    background-color: aliceblue;
+    background-color: #F4F4F4;
+}
+
+.anomaly-green {
+    color: green;
+}
+
+.anomaly-red {
+    color: red;
+}
+
+.anomaly-yellow {
+    color: #B7AF54;
 }

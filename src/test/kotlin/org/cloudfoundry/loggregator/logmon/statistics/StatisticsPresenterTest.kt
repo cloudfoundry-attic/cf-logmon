@@ -1,6 +1,7 @@
 package org.cloudfoundry.loggregator.logmon.statistics
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -20,7 +21,7 @@ class StatisticsPresenterTest {
             LogTestExecutionResults(10, 6, Instant.now(), 0.0)
         )
 
-        assertThat(statistics.reliability(results)).isEqualTo("75.00")
+        assertThat(statistics.reliability(results)).isCloseTo(.75, within(0.0000001))
     }
 
     @Test
@@ -30,7 +31,7 @@ class StatisticsPresenterTest {
             LogTestExecutionResults(10, 8, Instant.now(), 0.0)
         )
 
-        assertThat(statistics.reliability(results)).isEqualTo("80.00")
+        assertThat(statistics.reliability(results)).isCloseTo(.80, within(0.0000001))
     }
 
     @Test

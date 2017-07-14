@@ -10,13 +10,15 @@ vcap:
     space-id: unknown
 
 logmon:
+  anomalies:
+    sample-size: 5
   auth:
-    username: admin
     password: password
+    username: admin
   consumption:
-    username: nope@nope.com
     password: unknown
     post-production-wait-time-millis: 10000
+    username: nope@nope.com
   production:
     app-profile: normal
     initial-delay-millis: 10000

@@ -2,7 +2,7 @@ package org.cloudfoundry.loggregator.logmon.pacman
 
 import com.nhaarman.mockito_kotlin.argumentCaptor
 import org.assertj.core.api.Assertions.assertThat
-import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyRepo
+import org.cloudfoundry.loggregator.logmon.anomalies.AnomalyStateMachine
 import org.cloudfoundry.loggregator.logmon.statistics.*
 import org.cloudfoundry.loggregator.logmon.support.any
 import org.junit.Before
@@ -36,7 +36,7 @@ class LogTestExecutionTest {
     private lateinit var logTestExecutionsRepo: LogTestExecutionsRepo
 
     @Mock
-    private lateinit var anomalyRepo: AnomalyRepo
+    private lateinit var stateMachine: AnomalyStateMachine
 
     @InjectMocks
     private lateinit var logTest: LogTestExecution
@@ -68,9 +68,10 @@ class LogTestExecutionTest {
     }
 
     @Test
-    fun runTest_shouldAddTheExecutionResultsToTheRepo() {
+    fun runTest_shouldAddTheExecutionResultsToTheRepoAndRecalculatesTheState() {
         logTest.runTest()
 
+        verify(stateMachine).recalculate()
         argumentCaptor<LogTestExecutionResults>().apply {
             verify(logTestExecutionsRepo).save(capture())
 
@@ -81,7 +82,7 @@ class LogTestExecutionTest {
     }
 
     @Test
-    fun runTest_whenTheTestSucceeds_shouldSetLOGS_CONSUMED() {
+    fun runTest_whenTheTestFinishes_shouldSetLOGS_CONSUMED() {
         `when`(logSink.consume(any<Mono<Unit>>())).thenReturn(Mono.just(999))
         logTest.runTest()
 

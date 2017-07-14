@@ -47,11 +47,11 @@ class HomeController @Autowired constructor(
     }
 
     private class HomePagePresenter(val results: List<LogTestExecutionResults>, val anomalies: List<ApplicationAnomaly>, statistics: StatisticsPresenter) {
-        val todaysReliability = statistics.reliability(
+        val todaysReliability = presentReliability(statistics.reliability(
             results.filter { it.startTime > LocalDateTime.now().minusDays(1L).toInstant(ZoneOffset.UTC) }
-        )
+        ))
 
-        val allTimeReliability = statistics.reliability(results)
+        val allTimeReliability = presentReliability(statistics.reliability(results))
         val allTimeDuration = statistics.runTime(results)
         val hasMultidayData = allTimeDuration >= Duration.ofDays(1)
         val allTimeDateRange
@@ -66,6 +66,10 @@ class HomeController @Autowired constructor(
 
         private fun pp(time: Instant): String {
             return SimpleDateFormat("M/d/YY").format(Date(time.toEpochMilli()))
+        }
+
+        private fun presentReliability(reliability: Double): String {
+            return String.format("%.2f", reliability * 100)
         }
     }
 }

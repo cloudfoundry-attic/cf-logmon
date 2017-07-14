@@ -5,15 +5,15 @@ import java.time.Duration
 
 @Component
 class StatisticsPresenter {
-    fun reliability(results: List<LogTestExecutionResults>): String {
+    fun reliability(results: List<LogTestExecutionResults>): Double {
         val validResults = results.filter { it.logsConsumed >= 0 }
         if (validResults.count() == 0) {
-            return "0.00"
+            return 0.0
         } else {
             val rate = validResults
                 .map { it.logsConsumed }
-                .sum() / (validResults.first().logsProduced * validResults.count()).toFloat()
-            return String.format("%.2f", 100 * rate)
+                .sum() / (validResults.first().logsProduced * validResults.count()).toDouble()
+            return rate
         }
     }
 
