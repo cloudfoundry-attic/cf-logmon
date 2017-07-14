@@ -81,7 +81,7 @@
                             <td colspan="3" th:text="${anomaly.description}"></td>
                             <td class="txt-r">
                                 <th:block th:switch="${anomaly.level.toString()}">
-                                    <i th:case="'GREEN'" class="material-icons txt-m anomaly-green">error</i>
+                                    <i th:case="'GREEN'" class="material-icons txt-m anomaly-green">check_circle</i>
                                     <i th:case="'YELLOW'" class="material-icons txt-m anomaly-yellow">warning</i>
                                     <i th:case="'RED'" class="material-icons txt-m anomaly-red">warning</i>
                                 </th:block>
