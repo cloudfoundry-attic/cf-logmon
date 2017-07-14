@@ -74,9 +74,13 @@ function retrieveDataAndGraphIt() {
         const x = d3.scaleTime()
             .range([50, width])
             .domain(d3.extent(data, d => d.startTime));
+        const maxY = d3.max(data, d => Math.max(d.logsProduced, d.logsConsumed));
         const y = d3.scaleLinear()
             .range([height, 0])
-            .domain([0, d3.max(data, d => Math.max(d.logsProduced, d.logsConsumed)) * 1.2]);
+            .domain([
+                Math.max(d3.min(data, d => Math.min(d.logsProduced, d.logsConsumed)) - (maxY * 0.2), 0),
+                maxY * 1.2
+            ]);
 
         // Add the X Axis
         const xAxis = svg.append("g")
