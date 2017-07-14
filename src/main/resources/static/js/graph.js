@@ -113,7 +113,7 @@ function retrieveDataAndGraphIt() {
 
         const renderDots = function (root, points, dotColor, prop) {
             root.selectAll("dot")
-                .data(points)
+                .data(points.filter((p, i) => i === 0 || points[i][prop] !== points[i-1][prop]))
                 .enter()
                 .append("circle")
                 .attr("stroke", dotColor)
@@ -138,7 +138,6 @@ function retrieveDataAndGraphIt() {
                 });
         };
 
-        renderDots(svg, data, PRODUCED_CIRCLE_COLOR, "logsProduced");
         renderDots(svg, data, CONSUMED_CIRCLE_COLOR, "logsConsumed");
     });
 }
