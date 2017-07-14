@@ -13,7 +13,10 @@ enum class AnomalyLevel {
         override fun message(percentageReliability: Double): String =
             String.format("Reliability Rate %.0f%%", percentageReliability)
     },
-    GREEN;
+    GREEN {
+        override fun message(percentageReliability: Double): String =
+            String.format("Reliability Rate %.0f%%", percentageReliability)
+    };
 
     open fun message(percentageReliability: Double) = ""
 }

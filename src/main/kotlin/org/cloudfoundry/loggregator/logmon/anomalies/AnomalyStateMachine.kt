@@ -33,6 +33,9 @@ open class AnomalyStateMachine @Autowired constructor(
         } else if (reliability < 0.9 && state != AnomalyLevel.RED) {
             state = AnomalyLevel.RED
             anomalyRepo.save(state.message(reliability * 100), state)
+        } else if (reliability > 0.99 && state != AnomalyLevel.GREEN) {
+            state = AnomalyLevel.GREEN
+            anomalyRepo.save(state.message(reliability * 100), state)
         }
     }
 }

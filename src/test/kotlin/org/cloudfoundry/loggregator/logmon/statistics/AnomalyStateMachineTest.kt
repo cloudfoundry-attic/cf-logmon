@@ -26,7 +26,7 @@ class AnomalyStateMachineTest {
     }
 
     @Test
-    fun recalculate_whenTheLastNTestsAreAboveTheGreenThreshold_createsAnAnomaly() {
+    fun recalculate_whenTheLastNTestsAreAboveTheGreenThresholdAndThereIsNoPriorState_doesNothing() {
         `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
             LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
             LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
@@ -42,7 +42,7 @@ class AnomalyStateMachineTest {
     }
 
     @Test
-    fun recalculate_whenTheLastNTestsFallBelowAThreshold_createsAnAnomaly() {
+    fun recalculate_whenTheLastNTestsFallBelowRedThreshold_createsAnAnomaly() {
         `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
             LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
             LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
@@ -59,20 +59,6 @@ class AnomalyStateMachineTest {
                 "Click \"Review Data\" in the chart to see more info on the logs.",
             AnomalyLevel.RED
         )
-    }
-
-    @Test
-    fun recalculate_whenThereAreFewerThanNTests_doesNothing() {
-        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
-            LogTestExecutionResults(1000, 890, Instant.now(), 0.0)
-        ))
-
-        anomalyStateMachine.recalculate()
-
-        verifyZeroInteractions(anomalyRepo)
     }
 
     @Test
@@ -97,7 +83,21 @@ class AnomalyStateMachineTest {
     }
 
     @Test
-    fun recalculate_whenTheLastNTestsFallWithinTheYellowThreshold_createsAYellowAnomaly() {
+    fun recalculate_whenThereAreFewerThanNTests_doesNothing() {
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
+            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 890, Instant.now(), 0.0),
+            LogTestExecutionResults(1000, 890, Instant.now(), 0.0)
+        ))
+
+        anomalyStateMachine.recalculate()
+
+        verifyZeroInteractions(anomalyRepo)
+    }
+
+    @Test
+    fun recalculate_whenTheLastNTestsCrossIntoYellowThreshold_createsAYellowAnomaly() {
         `when`(logTestExecutionsRepo.findAll()).thenReturn(listOf(
             LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
             LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
@@ -108,11 +108,45 @@ class AnomalyStateMachineTest {
         ))
 
         anomalyStateMachine.recalculate()
-        anomalyStateMachine.recalculate()
 
         verify(anomalyRepo, times(1)).save(
             "Reliability Rate 95%",
             AnomalyLevel.YELLOW
+        )
+    }
+
+    @Test
+    fun recalculate_whenTheLastNTestsCrossAboveTheGreenThreshold_createsAnAnomaly() {
+        `when`(logTestExecutionsRepo.findAll()).thenReturn(
+            listOf(
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 950, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 950, Instant.now(), 0.0)
+            ),
+            listOf(
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0),
+                LogTestExecutionResults(1000, 1000, Instant.now(), 0.0)
+            )
+        )
+
+        anomalyStateMachine.recalculate()
+        anomalyStateMachine.recalculate()
+
+        val inOrder = inOrder(anomalyRepo)
+        inOrder.verify(anomalyRepo, times(1)).save(
+            "Reliability Rate 95%",
+            AnomalyLevel.YELLOW
+        )
+        inOrder.verify(anomalyRepo, times(1)).save(
+            "Reliability Rate 100%",
+            AnomalyLevel.GREEN
         )
     }
 }
