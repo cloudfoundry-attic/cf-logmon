@@ -8,7 +8,9 @@ The results of this test are displayed in a simple UI and available via JSON.
 
 
 ## Setup
-To get started you'll need to create a user that you would like to use within the app (we recommend creating a specific user for performing the test rather than using "real" credentials). 
+To get started you'll need to create a user that you would like to use within the app 
+(we recommend creating a specific user for performing the test rather than using "real" credentials). 
+You will also need to install the jdk if you are not setup for Java development. 
 
 1. Create a space auditor user.
    The application needs this user to read logs.
@@ -50,9 +52,9 @@ cf restage cf-logmon
 
 The following profiles are currently supported:
 
-* noisy
-* normal
-* quiet
+* noisy - This profile produces logs at roughly 5000 logs /second 
+* normal - This profile produces logs at roughly 1000 logs /second 
+* quiet - This profile produces logs at roughly 2 logs /second
 
 In addition to the production profile, it is also possible to configure various wait times:
 
