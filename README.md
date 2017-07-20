@@ -1,13 +1,14 @@
 # cf-logmon
 
-An application that provides blackbox monitoring of Loggregator to test reliability. 
-This tool is intended for use by CF operators.
-While running, this application will perform tests at a specified interval (default 60 seconds). 
-These tests write logs into CF, which the application then attempts to read.
-The reliability measurement is derived from the number of those logs that appear in Loggregator.
-Once a test completes, its statistics are stored in the application and presented through a web UI.
+This application performs a blacbox test for measuring message reliability when 
+running the command `cf logs`. This is accomplished by writing groups of logs, 
+measuring the time it took to produce the logs, and then counting the logs received 
+in the log stream. This is one way to measure message reliability of the Loggregator system.
+The results of this test are displayed in a simple UI and available via JSON. 
 
-## Usage (for CF operators)
+
+## Setup
+To get started you'll need to create a user that you would like to use within the app (we recommend creating a specific user for performing the test rather than using "real" credentials). 
 
 1. Create a space auditor user.
    The application needs this user to read logs.
@@ -33,7 +34,7 @@ You should start seeing data within 5 minutes.
 
 We've found that statistics become more valuable after 24 hours (or after a typical business day).
 
-### Fiddling
+### Configuration
 
 To help CF operators better understand how their system performs under different types of load, 
     cf-logmon ships with a handful of "profiles".
