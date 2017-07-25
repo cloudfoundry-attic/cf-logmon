@@ -34,7 +34,8 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.boot:spring-boot-actuator')
+    //compile('org.springframework.boot:spring-boot-actuator')
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-security")
 
     compile("org.cloudfoundry:cloudfoundry-client-reactor:$cfClientVersion")

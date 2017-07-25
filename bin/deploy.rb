@@ -14,16 +14,16 @@ puts <<-USER_CREATION
 
 ********************************************************************************
 
- ▄████▄    █████▒       ██▓     ▒█████    ▄████  ███▄ ▄███▓ ▒█████   ███▄    █ 
-▒██▀ ▀█  ▓██   ▒       ▓██▒    ▒██▒  ██▒ ██▒ ▀█▒▓██▒▀█▀ ██▒▒██▒  ██▒ ██ ▀█   █ 
+ ▄████▄    █████▒       ██▓     ▒█████    ▄████  ███▄ ▄███▓ ▒█████   ███▄    █
+▒██▀ ▀█  ▓██   ▒       ▓██▒    ▒██▒  ██▒ ██▒ ▀█▒▓██▒▀█▀ ██▒▒██▒  ██▒ ██ ▀█   █
 ▒▓█    ▄ ▒████ ░       ▒██░    ▒██░  ██▒▒██░▄▄▄░▓██    ▓██░▒██░  ██▒▓██  ▀█ ██▒
 ▒▓▓▄ ▄██▒░▓█▒  ░       ▒██░    ▒██   ██░░▓█  ██▓▒██    ▒██ ▒██   ██░▓██▒  ▐▌██▒
 ▒ ▓███▀ ░░▒█░          ░██████▒░ ████▓▒░░▒▓███▀▒▒██▒   ░██▒░ ████▓▒░▒██░   ▓██░
-░ ░▒ ▒  ░ ▒ ░          ░ ▒░▓  ░░ ▒░▒░▒░  ░▒   ▒ ░ ▒░   ░  ░░ ▒░▒░▒░ ░ ▒░   ▒ ▒ 
+░ ░▒ ▒  ░ ▒ ░          ░ ▒░▓  ░░ ▒░▒░▒░  ░▒   ▒ ░ ▒░   ░  ░░ ▒░▒░▒░ ░ ▒░   ▒ ▒
   ░  ▒    ░            ░ ░ ▒  ░  ░ ▒ ▒░   ░   ░ ░  ░      ░  ░ ▒ ▒░ ░ ░░   ░ ▒░
-░         ░ ░            ░ ░   ░ ░ ░ ▒  ░ ░   ░ ░      ░   ░ ░ ░ ▒     ░   ░ ░ 
-░ ░                        ░  ░    ░ ░        ░        ░       ░ ░           ░ 
-░                                                                              
+░         ░ ░            ░ ░   ░ ░ ░ ▒  ░ ░   ░ ░      ░   ░ ░ ░ ▒     ░   ░ ░
+░ ░                        ░  ░    ░ ░        ░        ░       ░ ░           ░
+░
 ********************************************************************************
 
 Welcome to CF-Logmon, we're about to do some setup. While you wait,
@@ -58,14 +58,14 @@ puts <<-ABOUT_TO_PUSH
 THE TIME HAS COME!
 
 We're about to push cf-logmon to this target:
- 
+
 #{`cf target`}
 
 If any of the above information does not look correct, please hit CTRL+C now.
 
 Please enter the credentials you created earlier below.
 Note: they will be echoed in plaintext - this is to reinforce that the credentials should be ephemeral
-and not belong to a real user. 
+and not belong to a real user.
 
 ABOUT_TO_PUSH
 
@@ -95,7 +95,7 @@ Tempfile.open('manifest') do |f|
   f.close
 
   puts 'Deploying application ...'
-  system "cf push -f #{f.path} > /dev/null"
+  system "cf push -f #{f.path}"
 end
 
 puts <<-NOTICE

@@ -1,16 +1,16 @@
 # cf-logmon
 
-This application performs a blacbox test for measuring message reliability when 
-running the command `cf logs`. This is accomplished by writing groups of logs, 
-measuring the time it took to produce the logs, and then counting the logs received 
+This application performs a blacbox test for measuring message reliability when
+running the command `cf logs`. This is accomplished by writing groups of logs,
+measuring the time it took to produce the logs, and then counting the logs received
 in the log stream. This is one way to measure message reliability of the Loggregator system.
-The results of this test are displayed in a simple UI and available via JSON. 
+The results of this test are displayed in a simple UI and available via JSON.
 
 
 ## Setup
-To get started you'll need to create a user that you would like to use within the app 
-(we recommend creating a specific user for performing the test rather than using "real" credentials). 
-You will also need to install the jdk if you are not setup for Java development. 
+To get started you'll need to create a user that you would like to use within the app
+(we recommend creating a specific user for performing the test rather than using "real" credentials).
+You will also need to install the jdk if you are not setup for Java development.
 
 1. Create a space auditor user.
    The application needs this user to read logs.
@@ -36,9 +36,9 @@ You should start seeing data within 5 minutes.
 
 We've found that statistics become more valuable after 24 hours (or after a typical business day).
 
-### Configuration
+## Configuration
 
-To help CF operators better understand how their system performs under different types of load, 
+To help CF operators better understand how their system performs under different types of load,
     cf-logmon ships with a handful of "profiles".
 Each of these profiles is intended to emulate applications with varying logging requirements.
 
@@ -52,8 +52,8 @@ cf restage cf-logmon
 
 The following profiles are currently supported:
 
-* noisy - This profile produces logs at roughly 5000 logs /second 
-* normal - This profile produces logs at roughly 1000 logs /second 
+* noisy - This profile produces logs at roughly 5000 logs /second
+* normal - This profile produces logs at roughly 1000 logs /second
 * quiet - This profile produces logs at roughly 2 logs /second
 
 In addition to the production profile, it is also possible to configure various wait times:
@@ -65,12 +65,29 @@ In addition to the production profile, it is also possible to configure various 
 * `LOGMON_PRODUCTION_INITIAL_DELAY_MILLIS` -
   The amount of time to allow a log consumption connection to start before producing logs.
 
+## Web UI
+This application includes a simple user interface for understanding your loss
+rate over the last 24 hours. The chart shoes the specific performance over the
+last 24 hours. The anamoly journal shows events when your log reliability
+rates falls below 99% (warning) and 90% (alert). This is a general guide to
+help operators better understan how to configure metrics.
+
+## Firehose Metrics
+This application is intended to be bound to the [custom app metrics](#) service
+(currently in private beta). This allows the following metrics to be emitted
+by the application.
+
+* `logs.sent`
+* `logs.received`
+
+This allows operators to configure monitoring based on these metrics with
+existing tooling.
+
 ## Background
 
-Historically, it has been difficult for Operators to understand when their deployed apps were experiencing log message loss.
-The main goal of cf-logmon is to provide an interface for Operators/App Developers to monitor the log message reliability of their CF installation.
-
-Through various tests, log message sampling has been found to be a good heuristic for determining when to scale parts of a CF installation.
-cf-logmon, by treating CF (and by extension, Loggregator) as a black box, can provide a good semblance of the user experience for logs.
-
-cf-logmon is not meant to provide a solution for, nor is it meant to help diagnose, message loss.
+Due to the challenges of distributed systems, and untracked srouces of loss in
+the Loggregator system setting Service Level Objectives for message
+reliability has been difficult using whitebox monitoring tools. The
+Loggregator team developed series of blackbox tests to monitor and mesaure
+message reliability. This was developed as a stand alone applications through
+a collaboration with Pivotal Labs in Denver.
