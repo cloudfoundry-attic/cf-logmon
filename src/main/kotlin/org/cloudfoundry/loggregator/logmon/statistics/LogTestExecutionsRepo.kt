@@ -1,10 +1,15 @@
 package org.cloudfoundry.loggregator.logmon.statistics
 
 import org.springframework.stereotype.Repository
+import org.springframework.boot.actuate.metrics.GaugeService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Repository
 open class LogTestExecutionsRepo {
     private var allResults: MutableList<LogTestExecutionResults> = mutableListOf()
+
+    @Autowired
+    private lateinit var gaugeService:GaugeService
 
     open fun findAll(): List<LogTestExecutionResults> {
         return allResults
@@ -12,7 +17,9 @@ open class LogTestExecutionsRepo {
 
     open fun save(results: LogTestExecutionResults) {
         synchronized(this) {
-            allResults.add(results)
+           gaugeService.submit("logmon.logs_produced", results.logsProduced.toDouble());
+           gaugeService.submit("logmon.logs_consumed", results.logsConsumed.toDouble());
+           allResults.add(results)
         }
     }
 
