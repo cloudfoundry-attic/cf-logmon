@@ -14,7 +14,8 @@ You will also need to install the jdk if you are not setup for Java development.
 
 1. Create a space auditor user.
    The application needs this user to read logs.
-   Because its credentials will be stored in an environment variable in CF, **these credentials should not belong to any real user.**
+   Because its credentials will be stored in an environment variable in CF, 
+   **these credentials should not belong to any real user.**
    An example set of commands to create a user:
    ```bash
    ORG=my-org
@@ -65,6 +66,9 @@ In addition to the production profile, it is also possible to configure various 
 * `LOGMON_PRODUCTION_INITIAL_DELAY_MILLIS` -
   The amount of time to allow a log consumption connection to start before producing logs.
 
+**Important** Do not scale this application beyond a single instance. Nothing is 
+done to distinquish app instances when consuming logs. 
+
 ## Web UI
 This application includes a simple user interface for understanding your loss
 rate over the last 24 hours. The chart shoes the specific performance over the
@@ -73,15 +77,14 @@ rates falls below 99% (warning) and 90% (alert). This is a general guide to
 help operators better understan how to configure metrics.
 
 ## Firehose Metrics
-This application is intended to be bound to the [custom app metrics](#) service
-(currently in private beta). This allows the following metrics to be emitted
-by the application.
+This application works best whenbound to the 
+[metrics-forwader](https://network.pivotal.io/products/p-metrics-forwarder) service. 
+This allows the following metrics to be emitted by the application.
 
-* `logs.sent`
-* `logs.received`
+* `metrics_forwarder.gauge.logmon.logs_produced`
+* `metrics_forwarder.gauge.logmon.logs_consumed`
 
-This allows operators to configure monitoring based on these metrics with
-existing tooling.
+The metrics are tagged with the application GUID of the app that is pushed. 
 
 ## Background
 
