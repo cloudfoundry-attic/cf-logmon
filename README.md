@@ -78,7 +78,7 @@ help operators better understand how to configure metrics.
 
 ## Firehose Metrics
 This application works best whenbound to the 
-[metrics-forwader](https://network.pivotal.io/products/p-metrics-forwarder) service. 
+[metrics-forwarder](https://network.pivotal.io/products/p-metrics-forwarder) service. 
 This allows the following metrics to be emitted by the application.
 
 * `metrics_forwarder.gauge.logmon.logs_produced`
