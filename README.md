@@ -29,7 +29,7 @@ You will also need to install the jdk if you are not setup for Java development.
 1.  ```bash
     git clone https://github.com/cloudfoundry-incubator/cf-logmon
     cd cf-logmon
-    bin/deploy.rb
+    bin/deploy.rb 
     ```
 
 Then visit `https://cf-logmon.$CF_DOMAIN`.
@@ -74,7 +74,7 @@ This application includes a simple user interface for understanding your loss
 rate over the last 24 hours. The chart shoes the specific performance over the
 last 24 hours. The anamoly journal shows events when your log reliability
 rates falls below 99% (warning) and 90% (alert). This is a general guide to
-help operators better understan how to configure metrics.
+help operators better understand how to configure metrics.
 
 ## Firehose Metrics
 This application works best whenbound to the 
