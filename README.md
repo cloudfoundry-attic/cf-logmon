@@ -4,7 +4,7 @@ This application performs a blacbox test for measuring message reliability when
 running the command `cf logs`. This is accomplished by writing groups of logs,
 measuring the time it took to produce the logs, and then counting the logs received
 in the log stream. This is one way to measure message reliability of the Loggregator system.
-The results of this test are displayed in a simple UI and available via JSON.
+The results of this test are displayed in a simple UI and available via JSON and the Firehose.
 
 
 ## Setup
