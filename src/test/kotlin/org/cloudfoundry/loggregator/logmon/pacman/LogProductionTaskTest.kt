@@ -20,7 +20,7 @@ class LogProductionTaskTest {
 
     @Test
     fun production_createsALogPeriodically() {
-        val productionTask = LogProductionTask(logProducer, metricRepository, 2)
+        val productionTask = LogProductionTask(logProducer, metricRepository, 1000, 2)
 
         StepVerifier.withVirtualTime { productionTask.get() }
             .expectSubscription()
@@ -37,7 +37,7 @@ class LogProductionTaskTest {
 
     @Test
     fun production_canHandleSubMillisecondResolution() {
-        val productionTask = LogProductionTask(logProducer, metricRepository, 2001)
+        val productionTask = LogProductionTask(logProducer, metricRepository, 1000, 2001)
 
         StepVerifier.withVirtualTime { productionTask.get() }
             .expectSubscription()
@@ -45,7 +45,26 @@ class LogProductionTaskTest {
             .consumeNextWith { verify(logProducer, times(3)).produce() }
             .thenAwait(Duration.ofMillis(1))
             .consumeNextWith { verify(logProducer, times(5)).produce() }
-            .thenAwait(Duration.ofMillis(998))
+            .thenAwait(Duration.ofMillis(1))
+            .consumeNextWith { verify(logProducer, times(7)).produce() }
+            .thenAwait(Duration.ofMillis(997))
+            .thenConsumeWhile { true }
+            .verifyComplete()
+    }
+
+    @Test
+    fun production_canHandleSubMillisecondResolutionWithMorePellets() {
+        val productionTask = LogProductionTask(logProducer, metricRepository, 10000, 10001)
+
+        StepVerifier.withVirtualTime { productionTask.get() }
+            .expectSubscription()
+            .thenAwait(Duration.ofMillis(1))
+            .consumeNextWith { verify(logProducer, times(2)).produce() }
+            .thenAwait(Duration.ofMillis(1))
+            .consumeNextWith { verify(logProducer, times(3)).produce() }
+            .thenAwait(Duration.ofMillis(1))
+            .consumeNextWith { verify(logProducer, times(4)).produce() }
+            .thenAwait(Duration.ofMillis(9997))
             .thenConsumeWhile { true }
             .verifyComplete()
     }

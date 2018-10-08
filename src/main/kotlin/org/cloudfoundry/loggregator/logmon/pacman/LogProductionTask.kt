@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux
 import java.time.Duration
 import java.util.function.Supplier
 
-class LogProductionTask(val logProducer: LogProducer, val metricRepository: MetricRepository, val numPellets: Int) : Supplier<Flux<Unit>> {
+class LogProductionTask(val logProducer: LogProducer, val metricRepository: MetricRepository, val durationMillis: Int, val numPellets: Int) : Supplier<Flux<Unit>> {
     companion object {
         val log: Logger = LoggerFactory.getLogger(LogProductionTask::class.java)
     }
@@ -37,22 +37,25 @@ class LogProductionTask(val logProducer: LogProducer, val metricRepository: Metr
     override fun get(): Flux<Unit> {
         log.info("Production starting")
 
-        val flux = if (numPellets <= 1000) {
-            val writeRate = 1000L / numPellets
+        val flux = if (numPellets <= durationMillis) {
+            val writeRate = durationMillis / numPellets
 
-            Flux.interval(Duration.ofMillis(0), Duration.ofMillis(writeRate))
+            Flux.interval(Duration.ofMillis(0), Duration.ofMillis(writeRate.toLong()))
                 .doOnNext({ logProducer.produce() })
                 .take(numPellets.toLong())
         } else {
             Flux.interval(Duration.ofMillis(0), Duration.ofMillis(1))
-                .doOnNext({ repeat(numPellets / 1000 + if (numPellets % 1000 > it) 1 else 0) { logProducer.produce() } })
-                .take(1000)
+                .doOnNext({ repeat(numPellets / durationMillis + if (numPellets % durationMillis > it) 1 else 0) {
+                        logProducer.produce();
+                    }
+                })
+                .take(durationMillis.toLong())
         }
 
         return flux
             .map { }
             .doOnComplete {
-                metricRepository.setImmediate(LOG_WRITE_TIME_MILLIS, 1000)
+                metricRepository.setImmediate(LOG_WRITE_TIME_MILLIS, durationMillis)
                 log.info("Production complete")
             }
     }

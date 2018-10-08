@@ -55,7 +55,8 @@ abstract class LogTestExecutionSpringTest {
 }
 
 @SpringBootTest(properties = arrayOf(
-    "logmon.production.app-profile=quiet",
+    "logmon.production.log-cycles=2",
+    "logmon.production.log-duration-millis=1000",
     "logmon.production.initial-delay-millis=0"
 ))
 @ActiveProfiles("test")
@@ -71,7 +72,8 @@ class QuietAppTest : LogTestExecutionSpringTest() {
 }
 
 @SpringBootTest(properties = arrayOf(
-    "logmon.production.app-profile=normal",
+    "logmon.production.log-cycles=1000",
+    "logmon.production.log-duration-millis=1000",
     "logmon.production.initial-delay-millis=0"
 ))
 class NormalAppTest : LogTestExecutionSpringTest() {
@@ -86,7 +88,8 @@ class NormalAppTest : LogTestExecutionSpringTest() {
 }
 
 @SpringBootTest(properties = arrayOf(
-    "logmon.production.app-profile=noisy",
+    "logmon.production.log-cycles=5000",
+    "logmon.production.log-duration-millis=1000",
     "logmon.production.initial-delay-millis=0"
 ))
 class NoisyAppTest : LogTestExecutionSpringTest() {

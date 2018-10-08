@@ -10,11 +10,12 @@ open class Pacman(
     val logProducer: LogProducer,
     val logConsumer: LogConsumer,
     val metricRepository: MetricRepository,
+    val durationMillis: Int,
     val numPellets: Int,
     val productionDelayMillis: Long
 ) {
     fun begin(): Mono<Long> {
-        val productionTask = LogProductionTask(logProducer, metricRepository, numPellets).get()
+        val productionTask = LogProductionTask(logProducer, metricRepository, durationMillis, numPellets).get()
             .delaySubscription(Duration.ofMillis(productionDelayMillis))
             .publish().autoConnect()
             .ignoreElements()

@@ -20,7 +20,8 @@ logmon:
     post-production-wait-time-millis: 10000
     username: nope@nope.com
   production:
-    app-profile: normal
+    log-cycles: 1000
+    log-duration-millis: 1000
     initial-delay-millis: 10000
   time-between-tests-millis: 60000
 

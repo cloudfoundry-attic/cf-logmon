@@ -25,16 +25,14 @@ open class LogTestExecution @Autowired constructor(
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    @Value("\${logmon.production.app-profile}")
-    private var logProductionProfile: String = "normal"
+    @Value("\${logmon.production.log-cycles}")
+    private var logCycles: Int = 1000
+
+    @Value("\${logmon.production.log-duration-millis}")
+    private var logDurationMillis: Int = 1000
 
     @Value("\${logmon.production.initial-delay-millis}")
     private var productionDelayMillis = 10_000L
-
-    private val profilesToPelletCounts = mapOf("quiet" to 2, "normal" to 1000, "noisy" to 5000)
-
-    private val totalPelletCount: Int
-        get() = profilesToPelletCounts[logProductionProfile]!!
 
     @Scheduled(fixedDelayString = "\${logmon.time-between-tests-millis}", initialDelay = 1000)
     open fun runTest() {
@@ -43,7 +41,7 @@ open class LogTestExecution @Autowired constructor(
         counterService.reset(LOGS_PRODUCED)
         counterService.reset(LOGS_CONSUMED)
 
-        Pacman(printer, logSink, metricRepository, totalPelletCount, productionDelayMillis).begin()
+        Pacman(printer, logSink, metricRepository, logDurationMillis, logCycles, productionDelayMillis).begin()
             .doOnSuccess { metricRepository.setImmediate(LOGS_CONSUMED, it) }
             .doFinally {
                 logTestExecutionsRepo.save(LogTestExecutionResults(
