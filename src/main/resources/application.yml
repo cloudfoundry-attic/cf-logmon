@@ -21,6 +21,7 @@ logmon:
     username: nope@nope.com
   production:
     log-cycles: 1000
+    log-byte-size: 256
     log-duration-millis: 1000
     initial-delay-millis: 10000
   time-between-tests-millis: 60000

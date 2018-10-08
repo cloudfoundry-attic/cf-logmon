@@ -12,11 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.TestPropertySource
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
+@TestPropertySource(properties = arrayOf(
+    "logmon.production.log-byte-size=100"
+))
 class LogmonApplicationTests {
 
     @MockBean
@@ -52,7 +56,10 @@ class LogmonApplicationTests {
             val lines = outContent.toString().trim().split("\n")
 
             assertThat(lines.size).isEqualTo(3)
-            lines.forEach { assertThat(it).contains("They are taking the Hobbits to Eisengard!") }
+            lines.forEach {
+                // 100 bytes + log4j log metadata
+                assertThat(it).hasSize(201)
+            }
         } catch (e: InterruptedException) {
             e.printStackTrace()
             fail()

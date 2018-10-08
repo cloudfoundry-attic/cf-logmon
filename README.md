@@ -49,6 +49,7 @@ rates:
 * `LOGMON_PRODUCTION_LOG_CYCLES` - The number of logs to emit during each test
 * `LOGMON_PRODUCTION_LOG_DURATION_MILLIS` - The amount of time in milliseconds
   during which the logs will be emitted.
+* `LOGMON_PRODUCTION_LOG_BYTE_SIZE` - The byte size of the log message to emit.
 
 It is also possible to configure various wait times:
 

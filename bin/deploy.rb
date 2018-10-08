@@ -75,14 +75,21 @@ log_reader_username = $stdin.gets.chomp
 print "Space Auditor Password: "
 log_reader_password = $stdin.gets.chomp
 
-print "Log Cycles Per Test: (default: 1000)"
+print "Log Cycles Per Test: (default: 1000) "
 log_cycles = $stdin.gets.chomp
 
-print "Log Duration Milliseconds Per Test: (default: 1000)"
+print "Log Byte Size: (default: 256) "
+log_byte_size = $stdin.gets.chomp
+
+print "Log Duration Milliseconds Per Test: (default: 1000) "
 log_duration_millis = $stdin.gets.chomp
 
 if log_cycles.empty?
   log_cycles = 1000
+end
+
+if log_byte_size.empty?
+  log_byte_size = 256
 end
 
 if log_duration_millis.empty?
@@ -101,6 +108,7 @@ manifest = {
       'LOGMON_CONSUMPTION_USERNAME' => log_reader_username,
       'LOGMON_CONSUMPTION_PASSWORD' => log_reader_password,
       'LOGMON_PRODUCTION_LOG_CYCLES' => log_cycles,
+      'LOGMON_PRODUCTION_LOG_BYTE_SIZE' => log_byte_size,
       'LOGMON_PRODUCTION_LOG_DURATION_MILLIS' => log_duration_millis,
     }
   }]
