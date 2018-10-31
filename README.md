@@ -46,6 +46,8 @@ typical business day).
 The following environment variables are used to configure test output and
 rates:
 
+* `LOGMON_SKIP_CERT_VERIFY` - Whether to skip ssl validation when connecting to CF
+
 * `LOGMON_PRODUCTION_LOG_CYCLES` - The number of logs to emit during each test
 * `LOGMON_PRODUCTION_LOG_DURATION_MILLIS` - The amount of time in milliseconds
   during which the logs will be emitted.

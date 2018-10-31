@@ -10,6 +10,7 @@ vcap:
     space-id: unknown
 
 logmon:
+  skip-cert-verify: false
   anomalies:
     sample-size: 5
   auth:

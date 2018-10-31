@@ -1,3 +1,4 @@
+
 package org.cloudfoundry.loggregator.logmon.cf
 
 import org.cloudfoundry.client.CloudFoundryClient
@@ -13,6 +14,7 @@ import org.cloudfoundry.uaa.UaaClient
 import org.springframework.boot.cloud.CloudFoundryVcapEnvironmentPostProcessor
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 
 @Configuration
@@ -25,6 +27,9 @@ open class CfConfiguration {
         lateinit var password: String
     }
 
+    @Value("\${logmon.skip-cert-verify}")
+    private var skipCertVerify: Boolean = false
+    
     @Bean
     open fun cfApiHost(cfApplicationEnv: CfApplicationEnv): String = cfApplicationEnv.cfApi.host
 
@@ -42,6 +47,7 @@ open class CfConfiguration {
     open fun connectionContext(cfApiHost: String): DefaultConnectionContext {
         return DefaultConnectionContext.builder()
             .apiHost(cfApiHost)
+            .skipSslValidation(skipCertVerify)
             .build()
     }
 

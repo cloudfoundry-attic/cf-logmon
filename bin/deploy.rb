@@ -84,6 +84,14 @@ log_byte_size = $stdin.gets.chomp
 print "Log Duration Milliseconds Per Test: (default: 1000) "
 log_duration_millis = $stdin.gets.chomp
 
+print "Skip SSL Validation? [y/N] "
+skip_ssl = $stdin.gets.chomp
+
+skip_validate_ssl = false
+if skip_ssl == "y"
+  skip_validate_ssl = true
+end
+
 if log_cycles.empty?
   log_cycles = 1000
 end
@@ -110,6 +118,7 @@ manifest = {
       'LOGMON_PRODUCTION_LOG_CYCLES' => log_cycles,
       'LOGMON_PRODUCTION_LOG_BYTE_SIZE' => log_byte_size,
       'LOGMON_PRODUCTION_LOG_DURATION_MILLIS' => log_duration_millis,
+      'LOGMON_SKIP_CERT_VERIFY' => skip_validate_ssl,
     }
   }]
 }
