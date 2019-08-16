@@ -21,6 +21,7 @@ type Config struct {
 	LogMessages  int64           `env:"LOG_MESSAGES_PER_BATCH, report"`
 	LogSize      int64           `env:"LOG_SIZE_BYTES, report"`
 	EmitDuration time.Duration   `env:"BATCH_EMIT_DURATION, report"`
+	RunInterval  time.Duration   `env:"RUN_INTERVAL, report"`
 	Vcap         VcapApplication `env:"VCAP_APPLICATION, required"`
 	LogUsername  string          `env:"LOGMON_CONSUMPTION_USERNAME, required"`
 	LogPassword  string          `env:"LOGMON_CONSUMPTION_PASSWORD, required"`
@@ -32,6 +33,7 @@ func LoadConfig(log *log.Logger) Config {
 		LogMessages:  1000,
 		LogSize:      256,
 		EmitDuration: time.Second,
+		RunInterval:  5 * time.Minute,
 	}
 
 	if err := envstruct.Load(&cfg); err != nil {
