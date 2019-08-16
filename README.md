@@ -1,11 +1,10 @@
 # cf-logmon
 
 This application performs a blacbox test for measuring message reliability
-when running the command `cf logs`. This is accomplished by writing groups of
-logs, measuring the time it took to produce the logs, and then counting the
-logs received in the log stream. This is one way to measure message
-reliability of the Loggregator system.  The results of this test are displayed
-in a simple UI and available via JSON and the Firehose.
+when running the command `cf tail`. This is accomplished by writing groups of
+logs and then counting the logs received in Log Cache. This is one way to
+measure message reliability of Log Cache. The results of this test are displayed
+in a simple UI and available via JSON.
 
 
 ## Setup
@@ -46,21 +45,15 @@ typical business day).
 The following environment variables are used to configure test output and
 rates:
 
-* `LOGMON_SKIP_CERT_VERIFY` - Whether to skip ssl validation when connecting to CF
-
-* `LOGMON_PRODUCTION_LOG_CYCLES` - The number of logs to emit during each test
-* `LOGMON_PRODUCTION_LOG_DURATION_MILLIS` - The amount of time in milliseconds
-  during which the logs will be emitted.
-* `LOGMON_PRODUCTION_LOG_BYTE_SIZE` - The byte size of the log message to emit.
+* `SKIP_CERT_VERIFY` - Whether to skip ssl validation when connecting to CF
+* `LOG_MESSAGES_PER_BATCH` - The number of logs to emit during each test
+* `BATCH_EMIT_DURATION` - The amount of time during which the logs will be emitted
+* `LOG_SIZE_BYTES` - The byte size of the log message to emit
 
 It is also possible to configure various wait times:
 
-* `LOGMON_TIME_BETWEEN_TESTS_MILLIS` - The amount of time to wait between each
-  "test"
-* `LOGMON_CONSUMPTION_POST_PRODUCTION_WAIT_TIME_MILLIS` - The amount of time
-  to wait after production completes for all created logs to drain.
-* `LOGMON_PRODUCTION_INITIAL_DELAY_MILLIS` - The amount of time to allow a log
-  consumption connection to start before producing logs.
+* `RUN_INTERVAL` - The amount of time to wait between each "test"
+* `LOG_TRANSIT_WAIT` - The amount of time to wait to collect results after logs have been emitted.
 
 **Important** Do not scale this application beyond a single instance. Nothing
 is done to distinquish app instances when consuming logs.
@@ -68,27 +61,7 @@ is done to distinquish app instances when consuming logs.
 ## Web UI
 
 This application includes a simple user interface for understanding your loss
-rate over the last 24 hours. The chart shoes the specific performance over the
-last 24 hours. The anamoly journal shows events when your log reliability
+rate over the last 24 hours. The chart shows the specific performance over the
+last 24 hours. The anomaly journal shows events when your log reliability
 rates falls below 99% (warning) and 90% (alert). This is a general guide to
 help operators better understand how to configure metrics.
-
-## Firehose Metrics
-
-This application works best whenbound to the
-[metrics-forwarder](https://network.pivotal.io/products/p-metrics-forwarder)
-service.  This allows the following metrics to be emitted by the application.
-
-* `metrics_forwarder.gauge.logmon.logs_produced`
-* `metrics_forwarder.gauge.logmon.logs_consumed`
-
-The metrics are tagged with the application GUID of the app that is pushed.
-
-## Background
-
-Due to the challenges of distributed systems, and untracked srouces of loss in
-the Loggregator system setting Service Level Objectives for message
-reliability has been difficult using whitebox monitoring tools. The
-Loggregator team developed series of blackbox tests to monitor and mesaure
-message reliability. This was developed as a stand alone applications through
-a collaboration with Pivotal Labs in Denver.

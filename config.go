@@ -26,15 +26,17 @@ type Config struct {
 	LogUsername    string          `env:"LOGMON_CONSUMPTION_USERNAME, required"`
 	LogPassword    string          `env:"LOGMON_CONSUMPTION_PASSWORD, required"`
 	SkipCertVerify bool            `env:"SKIP_CERT_VERIFY, required, report"`
+	LogTransitWait time.Duration   `env:"LOG_TRANSIT_WAIT, required, report"`
 	Port           int             `env:"PORT, required, report"`
 }
 
 func LoadConfig(log *log.Logger) Config {
 	cfg := Config{
-		LogMessages:  1000,
-		LogSize:      256,
-		EmitDuration: time.Second,
-		RunInterval:  5 * time.Minute,
+		LogMessages:    1000,
+		LogSize:        256,
+		EmitDuration:   time.Second,
+		RunInterval:    5 * time.Minute,
+		LogTransitWait: 10 * time.Second,
 	}
 
 	if err := envstruct.Load(&cfg); err != nil {

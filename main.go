@@ -39,7 +39,7 @@ func main() {
 			startTime := time.Now()
 			loggr.Emit(logSuffix)
 
-			time.Sleep(10 * time.Second)
+			time.Sleep(cfg.LogTransitWait)
 
 			receivedLogCount := c.CollectLogCount(startTime)
 			reliability := calculateReliability(cfg.LogMessages, receivedLogCount)
