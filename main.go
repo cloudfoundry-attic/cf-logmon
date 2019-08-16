@@ -4,6 +4,7 @@ import (
 	"code.cloudfoundry.org/cf-logmon/pkg/logger"
 	"code.cloudfoundry.org/log-cache/pkg/client"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -76,11 +77,20 @@ func logCacheClient(cfg Config) *client.Client {
 	logCacheAddr := strings.Replace(cfg.Vcap.CfApiEndpoint, "api", "log-cache", 1)
 	uaaAddr := strings.Replace(cfg.Vcap.CfApiEndpoint, "api", "uaa", 1)
 
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: cfg.SkipCertVerify,
+			},
+		},
+	}
 	oauthClient := client.NewOauth2HTTPClient(
 		uaaAddr,
 		"cf",
 		"",
-		client.WithOauth2HTTPUser(cfg.LogUsername, cfg.LogPassword))
+		client.WithOauth2HTTPUser(cfg.LogUsername, cfg.LogPassword),
+		client.WithOauth2HTTPClient(httpClient),
+	)
 	return client.NewClient(logCacheAddr, client.WithHTTPClient(oauthClient))
 }
 
