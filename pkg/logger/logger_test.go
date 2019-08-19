@@ -4,6 +4,7 @@ import (
 	"code.cloudfoundry.org/cf-logmon/pkg/logger"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"sync"
 	"time"
 )
 
@@ -68,16 +69,27 @@ var _ = Describe("Logger", func() {
 
 	It("batches emissions when logs Per millisecond <= 1", func() {
 		var emittedLogs [][]string
+		lock := sync.Mutex{}
+
 		loggr := logger.NewLogger(2, 8, 1000*time.Millisecond, func(logs []string) {
+			lock.Lock()
+			defer lock.Unlock()
+
 			emittedLogs = append(emittedLogs, logs)
 		})
 		go loggr.Emit("Some-log")
 
 		Consistently(func() int {
+			lock.Lock()
+			defer lock.Unlock()
+
 			return len(emittedLogs)
 		}, 450*time.Millisecond).Should(BeNumerically("<=", 1)) //The logs should be spread across the time range evenly
 
 		Eventually(func() int {
+			lock.Lock()
+			defer lock.Unlock()
+
 			return len(emittedLogs)
 		}).Should(Equal(2))
 	})

@@ -11,18 +11,14 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
 func main() {
 	l := log.New(os.Stderr, "", 1)
 	cfg := LoadConfig(l)
-
-	loggr := logger.NewLogger(cfg.LogMessages, cfg.LogSize, cfg.EmitDuration, func(s []string) {
-		for _, msg := range s {
-			l.Println(msg)
-		}
-	})
+	lock := sync.Mutex{}
 
 	logSuffix := "cf-logmon-test"
 
@@ -33,29 +29,31 @@ func main() {
 
 	var pastReliability []reliabilityStats
 	go func() {
+		loggr := logger.NewLogger(cfg.LogMessages, cfg.LogSize, cfg.EmitDuration, func(s []string) {
+			for _, msg := range s {
+				l.Println(msg)
+			}
+		})
+
+		lock.Lock()
+		pastReliability = append(pastReliability, runTest(loggr, logSuffix, cfg, c))
+		lock.Unlock()
+
 		ticker := time.Tick(cfg.RunInterval)
-
 		for range ticker {
-			startTime := time.Now()
-			loggr.Emit(logSuffix)
+			stats := runTest(loggr, logSuffix, cfg, c)
 
-			time.Sleep(cfg.LogTransitWait)
-
-			receivedLogCount := c.CollectLogCount(startTime)
-			reliability := calculateReliability(cfg.LogMessages, receivedLogCount)
-
-			pastReliability = append(pastReliability,
-				reliabilityStats{
-					Percent:      reliability,
-					EmittedLogs:  cfg.LogMessages,
-					ReceivedLogs: receivedLogCount,
-					Timestamp:    startTime,
-				})
+			lock.Lock()
+			pastReliability = append(pastReliability, stats)
+			lock.Unlock()
 		}
 	}()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/tests", func(w http.ResponseWriter, r *http.Request) {
+		lock.Lock()
 		response, err := json.Marshal(pastReliability)
+		lock.Unlock()
+
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -63,14 +61,56 @@ func main() {
 
 		w.Write(response)
 	})
+
+	http.HandleFunc("/summary", func(w http.ResponseWriter, r *http.Request) {
+		total := 0.0
+
+		lock.Lock()
+		for _, stat := range pastReliability {
+			total += stat.Percent
+		}
+		avgTotal := total / float64(len(pastReliability))
+		lock.Unlock()
+
+		response, err := json.Marshal(summaryStats{avgTotal})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(response)
+	})
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), nil))
 }
 
+func runTest(loggr *logger.Logger, logSuffix string, cfg Config, c *logger.Collector) reliabilityStats {
+	startTime := time.Now()
+	loggr.Emit(logSuffix)
+	time.Sleep(cfg.LogTransitWait)
+
+	receivedLogCount := c.CollectLogCount(startTime)
+	reliability := calculateReliability(cfg.LogMessages, receivedLogCount)
+
+	return reliabilityStats{
+		Percent:           reliability,
+		EmittedLogs:       cfg.LogMessages,
+		ReceivedLogs:      receivedLogCount,
+		BatchEmitDuration: cfg.EmitDuration,
+		Timestamp:         startTime,
+	}
+}
+
+type summaryStats struct {
+	TodaysReliability float64
+}
+
 type reliabilityStats struct {
-	Percent      float64
-	EmittedLogs  int64
-	ReceivedLogs int64
-	Timestamp    time.Time
+	Percent           float64
+	EmittedLogs       int64
+	ReceivedLogs      int64
+	BatchEmitDuration time.Duration
+	Timestamp         time.Time
 }
 
 func logCacheClient(cfg Config) *client.Client {

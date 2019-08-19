@@ -1,8 +1,0 @@
-dependencies:
-  pre:
-    - curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" > /tmp/cf-cli.tgz && cd /tmp && tar zxf cf-cli.tgz
-deployment:
-  review:
-    branch: master
-    commands:
-      - PATCH_NUM=$CIRCLE_BUILD_NUM ./bin/dev-deploy.sh

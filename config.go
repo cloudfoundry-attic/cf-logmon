@@ -26,7 +26,7 @@ type Config struct {
 	LogUsername    string          `env:"LOGMON_CONSUMPTION_USERNAME, required"`
 	LogPassword    string          `env:"LOGMON_CONSUMPTION_PASSWORD, required"`
 	SkipCertVerify bool            `env:"SKIP_CERT_VERIFY, required, report"`
-	LogTransitWait time.Duration   `env:"LOG_TRANSIT_WAIT, required, report"`
+	LogTransitWait time.Duration   `env:"LOG_TRANSIT_WAIT, report"`
 	Port           int             `env:"PORT, required, report"`
 }
 
