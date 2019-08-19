@@ -58,10 +58,11 @@ It is also possible to configure various wait times:
 **Important** Do not scale this application beyond a single instance. Nothing
 is done to distinquish app instances when consuming logs.
 
-## Web UI
+## API Endpoints
 
-This application includes a simple user interface for understanding your loss
-rate over the last 24 hours. The chart shows the specific performance over the
-last 24 hours. The anomaly journal shows events when your log reliability
-rates falls below 99% (warning) and 90% (alert). This is a general guide to
-help operators better understand how to configure metrics.
+This API allows for understanding your loss rate over the last 24 hours. This is a general guide to help operators
+better understand how to configure metrics.
+
+* `/tests` returns JSON formatted reliability stats over the last 24 hours
+* `/summary` returns today's reliability percentage
+* `/anomalies` records when your log reliability rates falls below 99% (warning) and 90% (alert)

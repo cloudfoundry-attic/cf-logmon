@@ -84,6 +84,9 @@ log_byte_size = $stdin.gets.chomp
 print "Emit Duration Per Test: (default: 1s) "
 emit_duration = $stdin.gets.chomp
 
+print "Run Interval: (default: 5m) "
+run_interval = $stdin.gets.chomp
+
 print "Log Transit Wait Per Test: (default: 10s) "
 log_transit_wait = $stdin.gets.chomp
 
@@ -112,6 +115,7 @@ manifest = {
       'LOG_SIZE_BYTES' => log_byte_size,
       'BATCH_EMIT_DURATION' => emit_duration,
       'LOG_TRANSIT_WAIT' => log_transit_wait,
+      'RUN_INTERVAL' => run_interval,
       'SKIP_CERT_VERIFY' => skip_validate_ssl,
     }
   }]

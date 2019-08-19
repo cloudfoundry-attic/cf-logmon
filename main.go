@@ -28,6 +28,7 @@ func main() {
 	c := logger.NewCollector(ctx, logSuffix, cfg.Vcap.ApplicationID, lgClient.Read)
 
 	var pastReliability []reliabilityStats
+	var anomalies []anomalyStats
 	go func() {
 		loggr := logger.NewLogger(cfg.LogMessages, cfg.LogSize, cfg.EmitDuration, func(s []string) {
 			for _, msg := range s {
@@ -36,7 +37,8 @@ func main() {
 		})
 
 		lock.Lock()
-		pastReliability = append(pastReliability, runTest(loggr, logSuffix, cfg, c))
+		stats := runTest(loggr, logSuffix, cfg, c)
+		pastReliability, anomalies = addToStats(pastReliability, stats, anomalies)
 		lock.Unlock()
 
 		ticker := time.Tick(cfg.RunInterval)
@@ -44,7 +46,7 @@ func main() {
 			stats := runTest(loggr, logSuffix, cfg, c)
 
 			lock.Lock()
-			pastReliability = append(pastReliability, stats)
+			pastReliability, anomalies = addToStats(pastReliability, stats, anomalies)
 			lock.Unlock()
 		}
 	}()
@@ -52,6 +54,19 @@ func main() {
 	http.HandleFunc("/tests", func(w http.ResponseWriter, r *http.Request) {
 		lock.Lock()
 		response, err := json.Marshal(pastReliability)
+		lock.Unlock()
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(response)
+	})
+
+	http.HandleFunc("/anomalies", func(w http.ResponseWriter, r *http.Request) {
+		lock.Lock()
+		response, err := json.Marshal(anomalies)
 		lock.Unlock()
 
 		if err != nil {
@@ -84,6 +99,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), nil))
 }
 
+func addToStats(pastReliability []reliabilityStats, stats reliabilityStats, anomalies []anomalyStats) ([]reliabilityStats, []anomalyStats) {
+	pastReliability = append(pastReliability, stats)
+	if stats.Percent <= 90.0 {
+		anomalies = append(anomalies, anomalyStats{"Alert", stats})
+	} else if stats.Percent <= 99.0 {
+		anomalies = append(anomalies, anomalyStats{"Warning", stats})
+	}
+	return pastReliability, anomalies
+}
+
 func runTest(loggr *logger.Logger, logSuffix string, cfg Config, c *logger.Collector) reliabilityStats {
 	startTime := time.Now()
 	loggr.Emit(logSuffix)
@@ -103,6 +128,11 @@ func runTest(loggr *logger.Logger, logSuffix string, cfg Config, c *logger.Colle
 
 type summaryStats struct {
 	TodaysReliability float64
+}
+
+type anomalyStats struct {
+	Status string
+	reliabilityStats
 }
 
 type reliabilityStats struct {
