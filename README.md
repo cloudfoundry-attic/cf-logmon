@@ -1,3 +1,5 @@
+# NOTE: This release has been deprecated and is not supported.
+
 # cf-logmon
 
 This application performs a blacbox test for measuring message reliability
